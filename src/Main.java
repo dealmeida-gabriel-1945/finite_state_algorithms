@@ -37,5 +37,6 @@ public class Main {
         System.out.println(aut.pertence_a_linguagem(in_errado1, 0, aut.estado_inicial));
         System.out.println(aut.pertence_a_linguagem(in_errado2, 0, aut.estado_inicial));
         System.out.println(aut.pertence_a_linguagem(in_correto, 0, aut.estado_inicial));
+        System.out.println("Possui estados inacessíveis? " + aut.possui_estados_inacessiveis());
     }
 }
