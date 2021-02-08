@@ -13,6 +13,23 @@ public class Automato {
     public List<Estado> estados_de_aceitacao = new ArrayList<>(); //Q
 
     /**
+     * Função que visa mostrar os dados do autômato
+     * */
+    public void show(){
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("Estados: {" + this.estados.size() + "}");
+        System.out.println(estados.stream().map(Estado::monta_string_show).collect(Collectors.joining(", ")));
+        System.out.println("Transições: {" + this.transicoes.size() + "}");
+        System.out.println(transicoes.stream().map(Transicao::monta_string_show).collect(Collectors.joining(", ")));
+        System.out.println("Alfabeto: {" + this.inputs_possiveis.size() + "}");
+        System.out.println(this.inputs_possiveis);
+        System.out.println("Estado inicial:");
+        System.out.println(this.estado_inicial.monta_string_show());
+        System.out.println("Estados de aceitação: {" + this.estados_de_aceitacao.size() + "}");
+        System.out.println(estados_de_aceitacao.stream().map(Estado::monta_string_show).collect(Collectors.joining(", ")));
+    }
+
+    /**
      * Verifica-se se uma lista de caracteres fazem parte da linguagem do automato
      * @param input lista de caracteres
      * @param index index de leitura que se encontra a lista de caracteres
@@ -97,11 +114,66 @@ public class Automato {
             }
         }
         this.minimiza_parte_2(duplas);
-        System.out.println("");
+        this.minimiza_parte_3(duplas.stream().filter(dupla -> dupla.equivalentes).collect(Collectors.toList()));
+        this.minimiza_parte_4();
+    }
+    /**
+     * Realiza o processo de atualização dos campos do autômato, como estado inicial, estados de a ceitação, etc...
+     * */
+    private void minimiza_parte_4() {
+        this.estado_inicial = this.estados.stream().filter(estado -> estado.inicial).findFirst().get();//atualiza o estado inicial
+        //atualiza as transicoes
+        List<Transicao> trans = new ArrayList<>();
+        this.transicoes.forEach(transicao -> {
+            if(trans.stream().filter(
+                transicao_nova -> Objects.equals(transicao.monta_string_show(), transicao_nova.monta_string_show())
+            ).count() == 0){
+                trans.add(transicao);
+            }
+        });
+        this.transicoes = trans;
+        //atualiza estados de aceitação
+        this.estados_de_aceitacao = this.estados.stream().filter(estado -> estado.de_aceitacao).collect(Collectors.toList());
     }
 
+    /**
+     * Realiza a mesclagem dos automatos equivalentes
+     * */
+    private void minimiza_parte_3(List<Dupla> duplas_equivalentes) {
+        duplas_equivalentes.forEach(
+            dupla -> {
+                Estado novo_estado = new Estado(
+                    String.join("_", dupla.estado_1.nome, dupla.estado_2.nome),
+                    (dupla.estado_1.de_aceitacao || dupla.estado_2.de_aceitacao),
+                    (dupla.estado_1.inicial || dupla.estado_2.inicial)
+                );
+
+                //retira os estados da dupla e adiciona o novo equivalete
+                this.estados = this.estados.stream().filter(estado -> (!Objects.equals(estado.nome, dupla.estado_1.nome) && !Objects.equals(estado.nome, dupla.estado_2.nome))).collect(Collectors.toList());
+
+                //herdar as transicoes onde os estados da dupla são destino
+                this.transicoes.stream().filter(
+                    transicao -> (Objects.equals(transicao.destino.nome, dupla.estado_1.nome) || Objects.equals(transicao.destino.nome, dupla.estado_2.nome))
+                ).forEach(
+                    transicao -> transicao.destino = novo_estado
+                );
+
+                //herdar as transicoes onde os estados da dupla são origem
+                this.transicoes.stream().filter(
+                    transicao -> (Objects.equals(transicao.origem.nome, dupla.estado_1.nome) || Objects.equals(transicao.origem.nome, dupla.estado_2.nome))
+                ).forEach(
+                    transicao -> transicao.origem = novo_estado
+                );
+
+                this.estados.add(novo_estado);
+            }
+        );
+    }
+
+    /**
+     * Realiza a verificação de equivalencia entre os estados
+     * */
     private void minimiza_parte_2(List<Dupla> duplas) {
-        Integer index = 0;
         while (!duplas.stream().allMatch(item -> Objects.nonNull(item.equivalentes))){
             duplas.forEach(
                 dupla -> {

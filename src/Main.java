@@ -46,14 +46,16 @@ public class Main {
         aut.inputs_possiveis = Arrays.asList("a", "b");
         aut.transicoes = Arrays.asList(trans1, trans2, trans3, trans4, trans5, trans6, trans7, trans8, trans9, trans10, trans11, trans12);
         aut.estado_inicial = estado0;
-        aut.estados_de_aceitacao = Arrays.asList(estado4, estado5);
+        aut.estados_de_aceitacao = Arrays.asList(estado0, estado4, estado5);
 
-        System.out.println("É deterministico? " + aut.is_deterministico());
-        aut.minimiza();
         System.out.println("É deterministico? " + aut.is_deterministico());
         System.out.println(aut.pertence_a_linguagem(in_errado1, 0, aut.estado_inicial));
         System.out.println(aut.pertence_a_linguagem(in_errado2, 0, aut.estado_inicial));
         System.out.println(aut.pertence_a_linguagem(in_correto, 0, aut.estado_inicial));
         System.out.println("Possui estados inacessíveis? " + aut.possui_estados_inacessiveis());
+
+        aut.show();
+        aut.minimiza();
+        aut.show();
     }
 }

@@ -16,4 +16,13 @@ public class Estado {
     public Estado(String nome) {
         this.nome = nome;
     }
+
+    public String monta_string_show() {
+        StringBuilder sb = new StringBuilder();
+        sb.append((this.inicial) ? "->" : "");
+        sb.append((this.de_aceitacao) ? "[" : "");
+        sb.append(this.nome);
+        sb.append((this.de_aceitacao) ? "]" : "");
+        return sb.toString();
+    }
 }
