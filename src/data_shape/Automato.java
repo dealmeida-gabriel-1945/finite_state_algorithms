@@ -1,4 +1,6 @@
 package data_shape;
+import util.MessageUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -106,7 +108,10 @@ public class Automato {
     public void minimiza(){
         //verifica se pode ser ocorrido a minimização
         if(!this.is_completo()) this.completa();
-        if(!this.is_deterministico() || this.possui_estados_inacessiveis()) return;
+        if(!this.is_deterministico() || this.possui_estados_inacessiveis()){
+            MessageUtil.ERRO_IMPOSSIVEL_MINIMIZAR();
+            return;
+        }
         this.minimiza_parte_1();
     }
 
