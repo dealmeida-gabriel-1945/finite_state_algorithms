@@ -51,7 +51,12 @@ public class Automato {
      * */
     public Boolean is_deterministico(){
         return this.estados.stream().allMatch(
-                estado -> this.inputs_possiveis.stream().allMatch(input -> this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, estado.nome) && Objects.equals(transicao.valor, input)).count() == 1)
+            estado ->
+                this.inputs_possiveis.stream().allMatch(
+                    input -> {
+                        Long cont = this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, estado.nome) && Objects.equals(transicao.valor, input)).count();
+                        return (cont == 1) || (cont == 0);
+                    })
         );
     }
 
@@ -61,7 +66,7 @@ public class Automato {
      * */
     public Boolean is_completo(){
         return this.estados.stream().allMatch(
-                estado -> this.transicoes.stream().filter(transicao -> (Objects.equals(estado.nome, transicao.origem.nome))).count() == (this.inputs_possiveis.size())
+            estado -> this.inputs_possiveis.stream().allMatch(input -> this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, estado.nome) && Objects.equals(transicao.valor, input)).count() == 1)
         );
     }
 
