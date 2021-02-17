@@ -20,22 +20,27 @@ public class Dupla {
     public void valida_equivalencia(List<Dupla> duplas, List<Transicao> transicoes, List<String> inputs_possiveis){
 
         for (String input : inputs_possiveis) {
-            Estado estado_destino_1 = transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, this.estado_1.nome) && Objects.equals(input, transicao.valor)).findFirst().get().destino;
-            Estado estado_destino_2 = transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, this.estado_2.nome) && Objects.equals(input, transicao.valor)).findFirst().get().destino;
-            Optional<Dupla> dupla_12_opt = duplas.stream().filter(
-                dupla -> (Objects.equals(dupla.estado_1.nome, estado_destino_1.nome) && Objects.equals(dupla.estado_2.nome, estado_destino_2.nome))
-                    || (Objects.equals(dupla.estado_1.nome, estado_destino_2.nome) && Objects.equals(dupla.estado_2.nome, estado_destino_1.nome))
-            ).findFirst();
-            if(dupla_12_opt.isPresent()){//verifica se existe a combiação do destino 1 e 2
-                Dupla dupla_12 = dupla_12_opt.get();
-                if (Objects.nonNull(dupla_12.equivalentes)){
-                    if(!dupla_12.equivalentes){
-                        this.depende_de = new ArrayList<>();
-                        this.equivalentes = Boolean.FALSE;
-                        return;
+            Optional<Transicao> opt_estado_destino_1 = transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, this.estado_1.nome) && Objects.equals(input, transicao.valor)).findFirst();
+            Optional<Transicao> opt_estado_destino_2 = transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, this.estado_2.nome) && Objects.equals(input, transicao.valor)).findFirst();
+
+            if(opt_estado_destino_1.isPresent() && opt_estado_destino_1.isPresent()){
+                Estado estado_destino_1 = opt_estado_destino_1.get().destino;
+                Estado estado_destino_2 = opt_estado_destino_2.get().destino;
+                Optional<Dupla> dupla_12_opt = duplas.stream().filter(
+                        dupla -> (Objects.equals(dupla.estado_1.nome, estado_destino_1.nome) && Objects.equals(dupla.estado_2.nome, estado_destino_2.nome))
+                                || (Objects.equals(dupla.estado_1.nome, estado_destino_2.nome) && Objects.equals(dupla.estado_2.nome, estado_destino_1.nome))
+                ).findFirst();
+                if(dupla_12_opt.isPresent()){//verifica se existe a combiação do destino 1 e 2
+                    Dupla dupla_12 = dupla_12_opt.get();
+                    if (Objects.nonNull(dupla_12.equivalentes)){
+                        if(!dupla_12.equivalentes){
+                            this.depende_de = new ArrayList<>();
+                            this.equivalentes = Boolean.FALSE;
+                            return;
+                        }
+                    }else{
+                        this.depende_de.add(dupla_12);
                     }
-                }else{
-                    this.depende_de.add(dupla_12);
                 }
             }
         }
