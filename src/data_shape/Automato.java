@@ -1,4 +1,6 @@
 package data_shape;
+import util.MessageUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -106,19 +108,18 @@ public class Automato {
     public void minimiza(){
         //verifica se pode ser ocorrido a minimização
         if(!this.is_completo()) this.completa();
-        if(!this.is_deterministico() || this.possui_estados_inacessiveis()) return;
+        if(!this.is_deterministico() || this.possui_estados_inacessiveis()){
+            MessageUtil.ERRO_IMPOSSIVEL_MINIMIZAR();
+            return;
+        }
         this.minimiza_parte_1();
     }
 
     private void minimiza_parte_1() {
         List<Dupla> duplas = new ArrayList<>();
         //1° passo: colocar como não equivalentes os que são de aceitação e os que não são
-        for (int i = 1; i < this.estados.size(); i++) {
-            for (int j = 0; j < i; j++) {
-                duplas.add(new Dupla(this.estados.get(i), this.estados.get(j)));
-            }
-        }
-        this.minimiza_parte_2(duplas);
+        this.monta_duplas(duplas, this);
+        this.equivalencia_entre_estados(duplas, this);
         this.minimiza_parte_3(duplas.stream().filter(dupla -> dupla.equivalentes).collect(Collectors.toList()));
         this.minimiza_parte_4();
     }
@@ -176,35 +177,6 @@ public class Automato {
     }
 
     /**
-     * Realiza a verificação de equivalencia entre os estados
-     * */
-    private void minimiza_parte_2(List<Dupla> duplas) {
-        while (!duplas.stream().allMatch(item -> Objects.nonNull(item.equivalentes))){
-            duplas.forEach(
-                dupla -> {
-                    if (Objects.nonNull(dupla.equivalentes)){
-                        duplas.stream().filter(
-                                duplaInterna -> duplaInterna.depende_de.contains(dupla) && Objects.isNull(duplaInterna.equivalentes)
-                        ).forEach(duplaInterna -> {
-                            if(dupla.equivalentes){
-                                duplaInterna.depende_de = duplaInterna.depende_de.stream().filter(dependencia -> !Objects.equals(dependencia, dupla)).collect(Collectors.toList());
-                                if(duplaInterna.depende_de.size() == 0){
-                                    duplaInterna.equivalentes = Boolean.TRUE;
-                                }
-                            }else{
-                                duplaInterna.depende_de = new ArrayList<>();
-                                duplaInterna.equivalentes = Boolean.FALSE;
-                            }
-                        });
-                    }else if(dupla.depende_de.size() == 0){
-                        dupla.valida_equivalencia(duplas, this.transicoes, this.inputs_possiveis);
-                    }
-                }
-            );
-        }
-    }
-
-    /**
      * Função que visa completar as transições que faltam no atomato, levando
      * até um "estado morto"
      * */
@@ -243,6 +215,77 @@ public class Automato {
             nome_inicial+=".";
         }
         return nome_inicial;
+    }
+
+    public Boolean equivale_a(Automato automato) {
+        Automato intemediario = new Automato();
+        this.equivalencia_pt1(intemediario, automato);
+
+        List<Dupla> duplas = new ArrayList<>();
+        this.monta_duplas(duplas, intemediario);
+        this.equivalencia_entre_estados(duplas, intemediario);
+
+        return duplas.stream().anyMatch(item -> item.estado_1.inicial && item.estado_2.inicial && item.equivalentes);
+    }
+
+    /**
+     * Popula o automato intermediario com os valores dos dois automatos a serem comparados
+     * */
+    private void equivalencia_pt1(Automato intermediario, Automato automato){
+
+        intermediario.estados.addAll(this.estados);
+        intermediario.estados.addAll(automato.estados);
+
+        intermediario.inputs_possiveis = this.inputs_possiveis;
+
+        intermediario.transicoes.addAll(this.transicoes);
+        intermediario.transicoes.addAll(automato.transicoes);
+
+        intermediario.estado_inicial = this.estado_inicial;
+
+        intermediario.estados_de_aceitacao.addAll(this.estados_de_aceitacao);
+        intermediario.estados_de_aceitacao.addAll(automato.estados_de_aceitacao);
+        intermediario.estados_de_aceitacao.addAll(automato.estados_de_aceitacao);
+    }
+
+    /**
+     * Realiza a verificação de equivalencia entre os estados
+     * */
+    private void equivalencia_entre_estados(List<Dupla> duplas, Automato automato){
+        while (!duplas.stream().allMatch(item -> Objects.nonNull(item.equivalentes))){
+            duplas.forEach(
+                    dupla -> {
+                        if (Objects.nonNull(dupla.equivalentes)){
+                            duplas.stream().filter(
+                                    duplaInterna -> duplaInterna.depende_de.contains(dupla) && Objects.isNull(duplaInterna.equivalentes)
+                            ).forEach(duplaInterna -> {
+                                if(dupla.equivalentes){
+                                    duplaInterna.depende_de = duplaInterna.depende_de.stream().filter(dependencia -> !Objects.equals(dependencia, dupla)).collect(Collectors.toList());
+                                    if(duplaInterna.depende_de.size() == 0){
+                                        duplaInterna.equivalentes = Boolean.TRUE;
+                                    }
+                                }else{
+                                    duplaInterna.depende_de = new ArrayList<>();
+                                    duplaInterna.equivalentes = Boolean.FALSE;
+                                }
+                            });
+                        }else if(dupla.depende_de.size() == 0){
+                            dupla.valida_equivalencia(duplas, automato.transicoes, automato.inputs_possiveis);
+                        }
+                    }
+            );
+        }
+    }
+
+    /**
+     * Monta as duplas de um autômato
+     * */
+    private void monta_duplas(List<Dupla> duplas, Automato automato){
+        for (int i = 1; i < automato.estados.size(); i++) {
+            for (int j = 0; j < i; j++) {
+                duplas.add(new Dupla(automato.estados.get(i), automato.estados.get(j)));
+            }
+        }
     }
 }
 
