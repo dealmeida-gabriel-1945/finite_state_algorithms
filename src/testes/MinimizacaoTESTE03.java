@@ -15,9 +15,9 @@ public class MinimizacaoTESTE03 {
         List<String> in_correto = Arrays.asList("a", "a", "a", "a");
 
         //adicionando 6 estados
-        Estado estado1 = new Estado("1", Boolean.FALSE, Boolean.TRUE);
-        Estado estado2 = new Estado("2", Boolean.TRUE, Boolean.FALSE);
-        Estado estado3 = new Estado("3");
+        Estado estado1 = new Estado(1L,"1", Boolean.FALSE, Boolean.TRUE);
+        Estado estado2 = new Estado(2L,"2", Boolean.TRUE, Boolean.FALSE);
+        Estado estado3 = new Estado(3L,"3");
 
         //adicionando transicoes
         //q0

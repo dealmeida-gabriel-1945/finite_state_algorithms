@@ -14,9 +14,9 @@ public class MultiplicacaoDeAutomatosUniaoTESTE01 {
 
         Automato aut1 = new Automato();
         //adicionando 3 estados
-        Estado estado1 = new Estado("1", Boolean.FALSE, Boolean.TRUE);
-        Estado estado2 = new Estado("2", Boolean.TRUE, Boolean.FALSE);
-        Estado estado3 = new Estado("3");
+        Estado estado1 = new Estado(1L,"1", Boolean.FALSE, Boolean.TRUE);
+        Estado estado2 = new Estado(2L,"2", Boolean.TRUE, Boolean.FALSE);
+        Estado estado3 = new Estado(3L,"3");
         //adicionando transicoes
         //1
         Transicao trans1 = new Transicao(estado1, estado3, "a");
@@ -36,8 +36,8 @@ public class MultiplicacaoDeAutomatosUniaoTESTE01 {
 
         Automato aut2 = new Automato();
         //adicionando 3 estados
-        Estado estado4 = new Estado("4", Boolean.FALSE, Boolean.TRUE);
-        Estado estado5 = new Estado("5", Boolean.TRUE, Boolean.FALSE);
+        Estado estado4 = new Estado(4L,"4", Boolean.FALSE, Boolean.TRUE);
+        Estado estado5 = new Estado(5L,"5", Boolean.TRUE, Boolean.FALSE);
         //adicionando transicoes
         //4
         Transicao trans7 = new Transicao(estado4, estado5, "a");
