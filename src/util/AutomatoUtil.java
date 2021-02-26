@@ -6,10 +6,13 @@ import data_shape.Transicao;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.*;
+
 import java.io.File;
 
 import java.util.ArrayList;
@@ -44,6 +47,77 @@ public class AutomatoUtil {
             )
         );
         return resultado;
+    }
+
+    public static void WRITE_FILE(Automato automato, String path) throws Exception{
+        DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+        Document document = documentBuilder.newDocument();
+
+        //Tag structure
+        Element structure = document.createElement("structure");
+        document.appendChild(structure);
+
+        //Tag type
+        Element type = document.createElement("type");
+        type.appendChild(document.createTextNode("fa"));
+        structure.appendChild(type);
+
+        //Tag automaton
+        Element automaton = document.createElement("automaton");
+        structure.appendChild(automaton);
+
+        //cria as tags de estatos com seus atributos
+        automato.estados.forEach(
+            estado -> {
+                //Cria tag <state>
+                Element state = document.createElement("state");
+                //Cria o atributo id, Seta o valor no tributo e seta o atributo na tag estado
+                state.setAttribute("id", estado.nome);
+                //Flag inicial
+                if (estado.inicial){
+                    state.appendChild(document.createElement("initial"));
+                }
+                //Flag final/de aceitação
+                if (estado.de_aceitacao){
+                    state.appendChild(document.createElement("final"));
+                }
+                //Adiciona ela no root
+                automaton.appendChild(state);
+            }
+        );
+
+        //cria as tags de transições com seus atributos
+        automato.transicoes.forEach(
+            transicao -> {
+                //Cria tag <transition>
+                Element transition = document.createElement("transition");
+
+                /*Cria as tags filhas*/
+                //FROM
+                Element from = document.createElement("from");
+                from.appendChild(document.createTextNode(transicao.origem.nome));
+                //TO
+                Element to = document.createElement("to");
+                to.appendChild(document.createTextNode(transicao.destino.nome));
+                //READ
+                Element read = document.createElement("read");
+                read.appendChild(document.createTextNode(transicao.valor));
+                //Adiciona as tags filhas da tag de transição
+                transition.appendChild(from);
+                transition.appendChild(to);
+                transition.appendChild(read);
+                //Adiciona a transição na root
+                automaton.appendChild(transition);
+            }
+        );
+
+        //Cria o XML
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource domSource = new DOMSource(document);
+        StreamResult streamResult = new StreamResult(new File(path));
+        transformer.transform(domSource, streamResult);
     }
 
     public static Automato READ_FILE(String path) throws Exception {

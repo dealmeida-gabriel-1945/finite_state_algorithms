@@ -1,18 +1,15 @@
 package testes;
 
 import data_shape.Automato;
-import data_shape.Estado;
-import data_shape.Transicao;
 import util.AutomatoUtil;
 
-import java.util.Arrays;
-import java.util.List;
-
-public class TratamentoArquivo01 {
+public class TratamentoArquivo02 {
     public static void main(String[] args) {
         String path = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_01.jff";
+        String pathToWrite = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_01_write.jff";
         try{
-            AutomatoUtil.READ_FILE(path).show();
+            Automato aut = AutomatoUtil.READ_FILE(path);
+            AutomatoUtil.WRITE_FILE(aut, pathToWrite);
         }catch (Exception ex){
             System.out.println("Erro");
         }
