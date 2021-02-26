@@ -20,15 +20,15 @@ public class Dupla {
     public void valida_equivalencia(List<Dupla> duplas, List<Transicao> transicoes, List<String> inputs_possiveis){
 
         for (String input : inputs_possiveis) {
-            Optional<Transicao> opt_estado_destino_1 = transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, this.estado_1.nome) && Objects.equals(input, transicao.valor)).findFirst();
-            Optional<Transicao> opt_estado_destino_2 = transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, this.estado_2.nome) && Objects.equals(input, transicao.valor)).findFirst();
+            Optional<Transicao> opt_estado_destino_1 = transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, this.estado_1.id) && Objects.equals(input, transicao.valor)).findFirst();
+            Optional<Transicao> opt_estado_destino_2 = transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, this.estado_2.id) && Objects.equals(input, transicao.valor)).findFirst();
 
             if(opt_estado_destino_1.isPresent() && opt_estado_destino_1.isPresent()){
                 Estado estado_destino_1 = opt_estado_destino_1.get().destino;
                 Estado estado_destino_2 = opt_estado_destino_2.get().destino;
                 Optional<Dupla> dupla_12_opt = duplas.stream().filter(
-                        dupla -> (Objects.equals(dupla.estado_1.nome, estado_destino_1.nome) && Objects.equals(dupla.estado_2.nome, estado_destino_2.nome))
-                                || (Objects.equals(dupla.estado_1.nome, estado_destino_2.nome) && Objects.equals(dupla.estado_2.nome, estado_destino_1.nome))
+                        dupla -> (Objects.equals(dupla.estado_1.id, estado_destino_1.id) && Objects.equals(dupla.estado_2.id, estado_destino_2.id))
+                                || (Objects.equals(dupla.estado_1.id, estado_destino_2.id) && Objects.equals(dupla.estado_2.id, estado_destino_1.id))
                 ).findFirst();
                 if(dupla_12_opt.isPresent()){//verifica se existe a combiação do destino 1 e 2
                     Dupla dupla_12 = dupla_12_opt.get();

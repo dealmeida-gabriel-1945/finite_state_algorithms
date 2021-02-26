@@ -1,10 +1,8 @@
 package data_shape;
+import util.AutomatoUtil;
 import util.MessageUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Automato {
@@ -13,6 +11,22 @@ public class Automato {
     public List<String> inputs_possiveis = new ArrayList<>();
     public Estado estado_inicial = new Estado();
     public List<Estado> estados_de_aceitacao = new ArrayList<>(); //Q
+
+    public Automato(){ }
+
+    public Automato(Automato toCopy){
+        this.estados = toCopy.estados.stream().map(Estado::new).collect(Collectors.toList());
+        this.transicoes = toCopy.transicoes.stream().map(
+            transicao -> new Transicao(
+                this.estados.stream().filter(origem -> Objects.equals(transicao.origem.id, origem.id)).findFirst().get(),
+                this.estados.stream().filter(destino -> Objects.equals(transicao.destino.id, destino.id)).findFirst().get(),
+                transicao.valor
+            )
+        ).collect(Collectors.toList());
+        this.inputs_possiveis = new ArrayList<>(toCopy.inputs_possiveis);
+        this.estado_inicial = new Estado(toCopy.estado_inicial);
+        this.estados_de_aceitacao = toCopy.estados_de_aceitacao.stream().map(Estado::new).collect(Collectors.toList());
+    }
 
     /**
      * Função que visa mostrar os dados do autômato
@@ -42,7 +56,7 @@ public class Automato {
         if(index >= input.size()) return estado_atual.de_aceitacao;
         if(!this.inputs_possiveis.contains(input.get(index))) return Boolean.FALSE;
         Optional<Transicao> opt_trans = this.transicoes.stream()
-                .filter(transicao -> (Objects.equals(estado_atual.nome, transicao.origem.nome)) && (Objects.equals(input.get(index), transicao.valor))).findFirst();
+                .filter(transicao -> (Objects.equals(estado_atual.id, transicao.origem.id)) && (Objects.equals(input.get(index), transicao.valor))).findFirst();
         if(!opt_trans.isPresent()) return Boolean.FALSE;
         return this.pertence_a_linguagem(input, (index + 1), opt_trans.get().destino);
     }
@@ -56,7 +70,7 @@ public class Automato {
             estado ->
                 this.inputs_possiveis.stream().allMatch(
                     input -> {
-                        Long cont = this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, estado.nome) && Objects.equals(transicao.valor, input)).count();
+                        Long cont = this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, estado.id) && Objects.equals(transicao.valor, input)).count();
                         return (cont == 1) || (cont == 0);
                     })
         );
@@ -68,7 +82,7 @@ public class Automato {
      * */
     public Boolean is_completo(){
         return this.estados.stream().allMatch(
-            estado -> this.inputs_possiveis.stream().allMatch(input -> this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, estado.nome) && Objects.equals(transicao.valor, input)).count() == 1)
+            estado -> this.inputs_possiveis.stream().allMatch(input -> this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, estado.id) && Objects.equals(transicao.valor, input)).count() == 1)
         );
     }
 
@@ -86,7 +100,7 @@ public class Automato {
         if(this.e_estado_morto(estado_atual)) return;
 
         this.transicoes.stream()
-                .filter(transicao -> Objects.equals(transicao.origem.nome, estado_atual.nome) && !estados_visitados.stream().map(estado -> estado.nome).collect(Collectors.toList()).contains(transicao.destino.nome)).map(transicao -> transicao.destino)
+                .filter(transicao -> Objects.equals(transicao.origem.id, estado_atual.id) && !estados_visitados.stream().map(estado -> estado.id).collect(Collectors.toList()).contains(transicao.destino.id)).map(transicao -> transicao.destino)
                 .forEach(estado -> {
                     this.visite(estados_visitados, estado);
                 });
@@ -97,8 +111,8 @@ public class Automato {
      * @return Boolean: TRUE -> é um estado morto : FALSE -> não é um estado morto
      * */
     private Boolean e_estado_morto(Estado estado) {
-        return this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, estado.nome))
-                .allMatch(transicao -> Objects.equals(transicao.destino.nome, estado.nome));
+        return this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, estado.id))
+                .allMatch(transicao -> Objects.equals(transicao.destino.id, estado.id));
     }
 
     /**
@@ -149,24 +163,25 @@ public class Automato {
         duplas_equivalentes.forEach(
             dupla -> {
                 Estado novo_estado = new Estado(
+                    AutomatoUtil.GERA_ID_NAO_UTILIZADO(this.estados),
                     String.join("_", dupla.estado_1.nome, dupla.estado_2.nome),
                     (dupla.estado_1.de_aceitacao || dupla.estado_2.de_aceitacao),
                     (dupla.estado_1.inicial || dupla.estado_2.inicial)
                 );
 
                 //retira os estados da dupla e adiciona o novo equivalete
-                this.estados = this.estados.stream().filter(estado -> (!Objects.equals(estado.nome, dupla.estado_1.nome) && !Objects.equals(estado.nome, dupla.estado_2.nome))).collect(Collectors.toList());
+                this.estados = this.estados.stream().filter(estado -> (!Objects.equals(estado.id, dupla.estado_1.id) && !Objects.equals(estado.id, dupla.estado_2.id))).collect(Collectors.toList());
 
                 //herdar as transicoes onde os estados da dupla são destino
                 this.transicoes.stream().filter(
-                    transicao -> (Objects.equals(transicao.destino.nome, dupla.estado_1.nome) || Objects.equals(transicao.destino.nome, dupla.estado_2.nome))
+                    transicao -> (Objects.equals(transicao.destino.id, dupla.estado_1.id) || Objects.equals(transicao.destino.id, dupla.estado_2.id))
                 ).forEach(
                     transicao -> transicao.destino = novo_estado
                 );
 
                 //herdar as transicoes onde os estados da dupla são origem
                 this.transicoes.stream().filter(
-                    transicao -> (Objects.equals(transicao.origem.nome, dupla.estado_1.nome) || Objects.equals(transicao.origem.nome, dupla.estado_2.nome))
+                    transicao -> (Objects.equals(transicao.origem.id, dupla.estado_1.id) || Objects.equals(transicao.origem.id, dupla.estado_2.id))
                 ).forEach(
                     transicao -> transicao.origem = novo_estado
                 );
@@ -181,7 +196,7 @@ public class Automato {
      * até um "estado morto"
      * */
     private void completa() {
-        Estado estado_morto = new Estado(this.gera_nome_nao_utilizado());
+        Estado estado_morto = new Estado(AutomatoUtil.GERA_ID_NAO_UTILIZADO(this.estados), AutomatoUtil.GERA_NOME_DO_ESTADO_MORTO(this.estados));
 
         List<Estado> estados_new = new ArrayList<>(this.estados);
         List<Transicao> transicoes_new = new ArrayList<>(this.transicoes);
@@ -192,9 +207,9 @@ public class Automato {
         );
 
         this.estados.stream().filter(
-                estado -> this.transicoes.stream().filter(transicao -> (Objects.equals(estado.nome, transicao.origem.nome))).count() < (this.inputs_possiveis.size())
+                estado -> this.transicoes.stream().filter(transicao -> (Objects.equals(estado.id, transicao.origem.id))).count() < (this.inputs_possiveis.size())
         ).forEach(estado -> {
-            List<String> inputs_implementados = this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.nome, estado.nome)).map(transicao -> transicao.valor).collect(Collectors.toList());
+            List<String> inputs_implementados = this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, estado.id)).map(transicao -> transicao.valor).collect(Collectors.toList());
             this.inputs_possiveis.stream().filter(
                     input -> !inputs_implementados.contains(input)
             ).forEach(
@@ -203,18 +218,6 @@ public class Automato {
         });
         this.transicoes = transicoes_new;
         this.estados = estados_new;
-    }
-
-    /**
-     * Função para gerar um nome de estado que não existe no automato
-     * */
-    private String gera_nome_nao_utilizado() {
-        String nome_inicial = "estado_morto";
-        List<String> nomes = this.estados.stream().map(estado -> estado.nome).collect(Collectors.toList());
-        while(nomes.contains(nome_inicial)){
-            nome_inicial+=".";
-        }
-        return nome_inicial;
     }
 
     public Boolean equivale_a(Automato automato) {

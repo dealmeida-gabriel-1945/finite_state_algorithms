@@ -11,5 +11,8 @@ public class _index {
 
         MultiplicacaoDeAutomatosInterseccaoTESTE01.main(null);
         MultiplicacaoDeAutomatosUniaoTESTE01.main(null);
+
+        TratamentoArquivo01.main(null);
+        TratamentoArquivo02.main(null);
     }
 }

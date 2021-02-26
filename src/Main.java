@@ -1,61 +1,154 @@
 import data_shape.Automato;
 import data_shape.Estado;
 import data_shape.Transicao;
+import util.AutomatoUtil;
+import util.MenuUtil;
+import util.MessageUtil;
 
+import javax.rmi.CORBA.Util;
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Main {
+
+    public static List<Automato> automatos = new ArrayList<>();
+    public static Scanner ler = new Scanner(System.in);
+
     public static void main(String[] args) {
-        Automato aut = new Automato();
-        List<String> in_errado1 = Arrays.asList("a", "a", "a", "b", "b");
-        List<String> in_errado2 = Arrays.asList("a");
-        List<String> in_correto = Arrays.asList("a", "a", "a", "a");
+        gerenciarAutomatos();
+    }
+/*============menus=============*/
+    public static void menu(){
+        System.out.println("====================MENU======================");
+        System.out.println("\t0. Manipular automatos salvos;");
+        System.out.print("\tSua escolha: ");
+    }
+    public static void menuAutomatos(){
+        System.out.println("\n\n====================MENU AUTOMATOS======================");
+        System.out.println("\t" + automatos.size() + " automato(s) cadastrados.");
+        System.out.println("\t1. Ver automato;");
+        System.out.println("\t2. Criar automato;");
+        System.out.println("\t3. Copiar automato;");
+        System.out.println("\t4. Minimizar automato;");
+        System.out.println("\t5. Excluir automato;");
+        System.out.println("\t~~~~~~~~~~~obre arquivos...");
+        System.out.println("\t6. Salvar em um arquivo;");
+        System.out.println("\t5. Sair;");
+        System.out.print("\tSua escolha: ");
+    }
+/*==========^^menus^^===========*/
 
-        //adicionando 6 estados
-        Estado estado0 = new Estado("q0", Boolean.TRUE, Boolean.TRUE);
-        Estado estado1 = new Estado("q1");
-        Estado estado2 = new Estado("q2");
-        Estado estado3 = new Estado("q3");
-        Estado estado4 = new Estado("q4", Boolean.TRUE, Boolean.FALSE);
-        Estado estado5 = new Estado("q5", Boolean.TRUE, Boolean.FALSE);
+    public static void gerenciarAutomatos(){
+        int escolha = 0;
+        while (escolha != 10){
+            menuAutomatos();
+            escolha = ler.nextInt();
+            switch (escolha){
+                case 1:
+                    mostrarAutomato();
+                    break;
+                case 2:
+                    criarAutomato();
+                    break;
+                case 3:
+                    copiarAutomato();
+                    break;
+                case 4:
+                    minimizarAutomato();
+                    break;
+                case 5:
+                    excluirAutomato();
+                    break;
+                case 6:
+                    salvarAutomatoEmArquivo();
+                    break;
+                default:
+                    MessageUtil.ERRO_ESCOLHA_INVALIDA();
+                    break;
+            }
+        }
+    }
 
-        //adicionando transicoes
-        //q0
-        Transicao trans1 = new Transicao(estado0, estado1, "b");
-        Transicao trans2 = new Transicao(estado0, estado2, "a");
-        //q1
-        Transicao trans3 = new Transicao(estado1, estado0, "b");
-        Transicao trans4 = new Transicao(estado1, estado1, "a");
-        //q2
-        Transicao trans5 = new Transicao(estado2, estado4, "a");
-        Transicao trans6 = new Transicao(estado2, estado5, "b");
-        //q3
-        Transicao trans7 = new Transicao(estado3, estado4, "b");
-        Transicao trans8 = new Transicao(estado3, estado5, "a");
-        //q4
-        Transicao trans9 = new Transicao(estado4, estado2, "b");
-        Transicao trans10 = new Transicao(estado4, estado3, "a");
-        //q5
-        Transicao trans11 = new Transicao(estado5, estado3, "b");
-        Transicao trans12 = new Transicao(estado5, estado2, "a");
+    private static void salvarAutomatoEmArquivo(){
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+        System.out.print("Digite o path do arquivo de saída: ");
+        String path = ler.next();
+        try {
+            AutomatoUtil.WRITE_FILE(automatos.get(selecionarAutomato() - 1), path);
+        }catch (Exception e){
+            MessageUtil.ERRO_PADRAO();
+            e.printStackTrace();
+        }
+    }
+    private static void excluirAutomato(){
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+        int index = selecionarAutomato() - 1;
+        if(MenuUtil.MOSTRA_MENU("Tem certeza que deseja excluir este automato?", Arrays.asList("Sim", "Não"), ler) == 1){
+            automatos.remove(index);
+        }
+    }
+    private static void minimizarAutomato(){
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+        int index = selecionarAutomato() - 1;
+        Automato copy = new Automato(automatos.get(index));
+        copy.minimiza();
+        copy.show();
+        if(MenuUtil.MOSTRA_MENU("Deseja salvar o automato minimizado?", Arrays.asList("Sim", "Não"), ler) == 1){
+            if(MenuUtil.MOSTRA_MENU("Deseja sobrescrever o automato original?", Arrays.asList("Sim", "Não"), ler) == 1){
+                automatos.set(index, copy);
+            }else{
+                automatos.add(copy);
+            }
+        }
+    }
 
-        aut.estados = Arrays.asList(estado0, estado1, estado2, estado3, estado4, estado5);
-        aut.inputs_possiveis = Arrays.asList("a", "b");
-        aut.transicoes = Arrays.asList(trans1, trans2, trans3, trans4, trans5, trans6, trans7, trans8, trans9, trans10, trans11, trans12);
-        aut.estado_inicial = estado0;
-        aut.estados_de_aceitacao = Arrays.asList(estado0, estado4, estado5);
+    private static void copiarAutomato(){
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+        automatos.add(new Automato(automatos.get(selecionarAutomato() - 1)));
+    }
 
-        System.out.println("É deterministico? " + aut.is_deterministico());
-        System.out.println(aut.pertence_a_linguagem(in_errado1, 0, aut.estado_inicial));
-        System.out.println(aut.pertence_a_linguagem(in_errado2, 0, aut.estado_inicial));
-        System.out.println(aut.pertence_a_linguagem(in_correto, 0, aut.estado_inicial));
-        System.out.println("Possui estados inacessíveis? " + aut.possui_estados_inacessiveis());
+    private static void criarAutomato(){
+        System.out.print("Path do arquivo: ");
+        String path = ler.next();
+        try {
+            automatos.add(AutomatoUtil.READ_FILE(path));
+        }catch (Exception e){
+            MessageUtil.ERRO_PADRAO();
+            e.printStackTrace();
+        }
+    }
 
-        aut.show();
-        aut.minimiza();
-        aut.show();
+    private static int selecionarAutomato() {
+        System.out.println("Há " + automatos.size() + " automatos, qual você deseja selecionar? ");
+        int toReturn = -1;
+        while ((toReturn < 0) || (automatos.size() < toReturn)) {
+            System.out.print("Resposta: ");
+            toReturn = ler.nextInt();
+            if((toReturn < 0) || (automatos.size() < toReturn)) {
+                MessageUtil.ERRO_ESCOLHA_INVALIDA();
+            }
+        }
+        return toReturn;
+    }
+
+    private static void mostrarAutomato() {
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+        int automatoIndex = selecionarAutomato();
+        automatos.get(automatoIndex - 1).show();
     }
 }

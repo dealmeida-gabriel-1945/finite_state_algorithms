@@ -3,6 +3,7 @@ package testes;
 import data_shape.Automato;
 import data_shape.Estado;
 import data_shape.Transicao;
+import util.AutomatoUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,9 +14,9 @@ public class EquivalenciaAutomatosTESTE01 {
 
         Automato aut1 = new Automato();
         //adicionando 3 estados
-        Estado estado1 = new Estado("1", Boolean.FALSE, Boolean.TRUE);
-        Estado estado2 = new Estado("2", Boolean.TRUE, Boolean.FALSE);
-        Estado estado3 = new Estado("3");
+        Estado estado1 = new Estado(1L,"1", Boolean.FALSE, Boolean.TRUE);
+        Estado estado2 = new Estado(2L,"2", Boolean.TRUE, Boolean.FALSE);
+        Estado estado3 = new Estado(3L,"3");
         //adicionando transicoes
         //1
         Transicao trans1 = new Transicao(estado1, estado3, "a");
@@ -55,5 +56,15 @@ public class EquivalenciaAutomatosTESTE01 {
         aut1.show();
         aut2.show();
         System.out.println("Aut1 e Aut2 são equivalentes? " + aut1.equivale_a(aut2));
+
+
+        String path1 = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/ex_1.jff";
+        String path2 = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/ex_2.jff";
+        try{
+            AutomatoUtil.WRITE_FILE(aut1, path1);
+            AutomatoUtil.WRITE_FILE(aut2, path2);
+        }catch (Exception ex){
+            System.out.println("Erro");
+        }
     }
 }

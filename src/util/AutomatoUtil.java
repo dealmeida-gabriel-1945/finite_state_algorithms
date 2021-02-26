@@ -15,10 +15,7 @@ import org.w3c.dom.*;
 
 import java.io.File;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AutomatoUtil {
@@ -29,8 +26,8 @@ public class AutomatoUtil {
                 estado1 -> {
                     automato2.estados.forEach(
                         estado2 ->{
-                            Optional<Transicao> opt_trans1 = automato1.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem, estado1) && Objects.equals(transicao.valor, input)).findFirst();
-                            Optional<Transicao> opt_trans2 = automato2.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem, estado2) && Objects.equals(transicao.valor, input)).findFirst();
+                            Optional<Transicao> opt_trans1 = automato1.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, estado1.id) && Objects.equals(transicao.valor, input)).findFirst();
+                            Optional<Transicao> opt_trans2 = automato2.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, estado2.id) && Objects.equals(transicao.valor, input)).findFirst();
                             if(opt_trans1.isPresent() && opt_trans2.isPresent()){
                                 Optional<Estado> opt_estado_origem = resultante.estados.stream().filter(estado -> Objects.equals(estado.nome, String.join("_", opt_trans1.get().origem.nome, opt_trans2.get().origem.nome))).findFirst();
                                 Optional<Estado> opt_estado_destino = resultante.estados.stream().filter(estado -> Objects.equals(estado.nome, String.join("_", opt_trans1.get().destino.nome, opt_trans2.get().destino.nome))).findFirst();
@@ -73,7 +70,8 @@ public class AutomatoUtil {
                 //Cria tag <state>
                 Element state = document.createElement("state");
                 //Cria o atributo id, Seta o valor no tributo e seta o atributo na tag estado
-                state.setAttribute("id", estado.nome);
+                state.setAttribute("id", String.valueOf(estado.id));
+                state.setAttribute("name", estado.nome);
                 //Flag inicial
                 if (estado.inicial){
                     state.appendChild(document.createElement("initial"));
@@ -96,10 +94,10 @@ public class AutomatoUtil {
                 /*Cria as tags filhas*/
                 //FROM
                 Element from = document.createElement("from");
-                from.appendChild(document.createTextNode(transicao.origem.nome));
+                from.appendChild(document.createTextNode(String.valueOf(transicao.origem.id)));
                 //TO
                 Element to = document.createElement("to");
-                to.appendChild(document.createTextNode(transicao.destino.nome));
+                to.appendChild(document.createTextNode(String.valueOf(transicao.destino.id)));
                 //READ
                 Element read = document.createElement("read");
                 read.appendChild(document.createTextNode(transicao.valor));
@@ -152,7 +150,8 @@ public class AutomatoUtil {
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) nNode;
                 toReturn.add(new Estado(
-                    eElement.getAttribute("id"),
+                    Long.parseLong(eElement.getAttribute("id")),
+                    eElement.getAttribute("name"),
                     Objects.nonNull(eElement.getElementsByTagName("final").item(0)),
                     Objects.nonNull(eElement.getElementsByTagName("initial").item(0))
                 ));
@@ -167,8 +166,8 @@ public class AutomatoUtil {
             Node nNode = nList.item(i);
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) nNode;
-                Optional<Estado> optEstadoOrigem = estados.stream().filter(item -> Objects.equals(eElement.getElementsByTagName("from").item(0).getTextContent(), item.nome)).findFirst();
-                Optional<Estado> optEstadoDestino = estados.stream().filter(item -> Objects.equals(eElement.getElementsByTagName("to").item(0).getTextContent(), item.nome)).findFirst();
+                Optional<Estado> optEstadoOrigem = estados.stream().filter(item -> Objects.equals(eElement.getElementsByTagName("from").item(0).getTextContent(), String.valueOf(item.id))).findFirst();
+                Optional<Estado> optEstadoDestino = estados.stream().filter(item -> Objects.equals(eElement.getElementsByTagName("to").item(0).getTextContent(), String.valueOf(item.id))).findFirst();
 
                 if(!optEstadoOrigem.isPresent() || !optEstadoDestino.isPresent()) throw new Exception("Arquivo mal gerado");
 
@@ -189,6 +188,26 @@ public class AutomatoUtil {
                 if(!toReturn.contains(input)) toReturn.add(input);
             });
         return toReturn;
+    }
+
+    /**
+     * Função para gerar um nome de estado que não existe no automato
+     * */
+    public static String GERA_NOME_DO_ESTADO_MORTO(List<Estado> estados) {
+        String nome_inicial = "estado_morto";
+        List<String> nomes = estados.stream().map(estado -> estado.nome).collect(Collectors.toList());
+        while(nomes.contains(nome_inicial)){
+            nome_inicial+=".";
+        }
+        return nome_inicial;
+    }
+
+
+    /**
+     * Função para gerar um id de estado que não existe no automato
+     * */
+    public static Long GERA_ID_NAO_UTILIZADO(List<Estado> estados) {
+        return Collections.max(estados.stream().map(item -> item.id).collect(Collectors.toList())) + 1;
     }
 
     /*
