@@ -6,8 +6,11 @@ public class _index {
         TesteCadeiaAFN_UT02.main();
         TesteMinimizacao_UT03.main();
         TesteMinimizacao_UT04.main();
-        TesteVerificacaoAFDN_UT04.main();
-        TesteVerificacaoCompletude01_UT04.main();
-        TesteVerificacaoCompletude02_UT04.main();
+        TesteVerificacaoAFDN_UT05.main();
+        TesteVerificacaoCadeiaAFD01_UT06.main();
+        TesteVerificacaoCadeiaAFD02_UT07.main();
+        TesteVerificacaoCadeiaAFN01_UT08.main();
+        TesteVerificacaoCompletude01_UT09.main();
+        TesteVerificacaoCompletude02_UT10.main();
     }
 }
