@@ -36,7 +36,7 @@ public enum EnumOperador implements OperadorStrategy {
                             est.idElder1 = estado1.id;
                             est.idElder2 = estado2.id;
                             resultante.estados.add(est);
-                            if(est.inicial) resultante.estado_inicial = est;
+                            if(est.inicial) resultante.estados_iniciais.add(est);
                             if(est.de_aceitacao) resultante.estados_de_aceitacao.add(est);
                         }
                     );
@@ -69,7 +69,7 @@ public enum EnumOperador implements OperadorStrategy {
                             est.idElder1 = estado1.id;
                             est.idElder2 = estado2.id;
                             resultante.estados.add(est);
-                            if(est.inicial) resultante.estado_inicial = est;
+                            if(est.inicial) resultante.estados_iniciais.add(est);
                             if(est.de_aceitacao) resultante.estados_de_aceitacao.add(est);
                         }
                     );

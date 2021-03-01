@@ -15,9 +15,9 @@ public class TesteCadeiaAFN_UT02 {
         try{
             Automato automato = AutomatoUtil.READ_FILE(ExemploUtil.EXEMPLO_04);
             if (
-                automato.pertence_a_linguagem(cadeia_01, 0, automato.estado_inicial) &&
-                !automato.pertence_a_linguagem(cadeia_02, 0, automato.estado_inicial) &&
-                !automato.pertence_a_linguagem(cadeia_03, 0, automato.estado_inicial)
+                automato.pertence_a_linguagem(cadeia_01) &&
+                !automato.pertence_a_linguagem(cadeia_02) &&
+                !automato.pertence_a_linguagem(cadeia_03)
             ){
                 System.out.println(ExemploUtil.VERDE + "TesteCadeiaAFN_UT02 => SUCESSO" + ExemploUtil.RESET);
             }else{

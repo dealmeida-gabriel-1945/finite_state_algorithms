@@ -96,7 +96,7 @@ public class Main {
         }
         System.out.println(
             "A palavra " +
-            (automatos.get(index).pertence_a_linguagem(palavra, 0, automatos.get(index).estado_inicial) ? "" : " não ") +
+            (automatos.get(index).pertence_a_linguagem(palavra) ? "" : " não ") +
             "pertence à linguagem do autômato."
         );
     }

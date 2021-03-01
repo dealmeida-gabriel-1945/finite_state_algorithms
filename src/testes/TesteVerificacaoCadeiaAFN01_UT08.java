@@ -17,9 +17,9 @@ public class TesteVerificacaoCadeiaAFN01_UT08 {
             List<String> cadeia3 = Arrays.asList("b", "a", "b", "b", "a");
 
             if(
-                automato.pertence_a_linguagem(cadeia1, 0, automato.estado_inicial) &&
-                automato.pertence_a_linguagem(cadeia2, 0, automato.estado_inicial) &&
-                !automato.pertence_a_linguagem(cadeia3, 0, automato.estado_inicial)
+                automato.pertence_a_linguagem(cadeia1) &&
+                automato.pertence_a_linguagem(cadeia2) &&
+                !automato.pertence_a_linguagem(cadeia3)
             ){
                 System.out.println(ExemploUtil.VERDE + "TesteVerificacaoCadeiaAFN01_UT08 => SUCESSO" + ExemploUtil.RESET);
             }else {

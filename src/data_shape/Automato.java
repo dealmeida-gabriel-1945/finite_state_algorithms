@@ -9,7 +9,7 @@ public class Automato {
     public List<Estado> estados = new ArrayList<>(); //Q
     public List<Transicao> transicoes = new ArrayList<>();
     public List<String> inputs_possiveis = new ArrayList<>();
-    public Estado estado_inicial = new Estado();
+    public List<Estado> estados_iniciais = new ArrayList<>();
     public List<Estado> estados_de_aceitacao = new ArrayList<>(); //Q
 
     public Automato(){ }
@@ -24,7 +24,7 @@ public class Automato {
             )
         ).collect(Collectors.toList());
         this.inputs_possiveis = new ArrayList<>(toCopy.inputs_possiveis);
-        this.estado_inicial = new Estado(toCopy.estado_inicial);
+        toCopy.estados_iniciais.forEach(estado -> this.estados_iniciais.add(new Estado(estado)));
         this.estados_de_aceitacao = toCopy.estados_de_aceitacao.stream().map(Estado::new).collect(Collectors.toList());
     }
 
@@ -40,7 +40,7 @@ public class Automato {
         System.out.println("Alfabeto: {" + this.inputs_possiveis.size() + "}");
         System.out.println(this.inputs_possiveis);
         System.out.println("Estado inicial:");
-        System.out.println(this.estado_inicial.monta_string_show());
+        System.out.println(estados_iniciais.stream().map(Estado::monta_string_show).collect(Collectors.joining(", ")));
         System.out.println("Estados de aceitação: {" + this.estados_de_aceitacao.size() + "}");
         System.out.println(estados_de_aceitacao.stream().map(Estado::monta_string_show).collect(Collectors.joining(", ")));
     }
@@ -48,11 +48,22 @@ public class Automato {
     /**
      * Verifica-se se uma lista de caracteres fazem parte da linguagem do automato
      * @param input lista de caracteres
+     * @return Boolean: TRUE -> pertence : FALSE -> não pertence
+     * */
+    public Boolean pertence_a_linguagem(List<String> input){
+        if (this.estados_iniciais.isEmpty()) return  Boolean.FALSE;
+        return this.estados_iniciais.stream().anyMatch(
+            estado -> this.pertence_a_linguagem(input, 0, estado)
+        );
+    }
+    /**
+     * Verifica-se se uma lista de caracteres fazem parte da linguagem do automato
+     * @param input lista de caracteres
      * @param index index de leitura que se encontra a lista de caracteres
      * @param estado_atual o estado atual que se encontra
      * @return Boolean: TRUE -> pertence : FALSE -> não pertence
      * */
-    public Boolean pertence_a_linguagem(List<String> input, Integer index, Estado estado_atual){
+    private Boolean pertence_a_linguagem(List<String> input, Integer index, Estado estado_atual){
         if(index >= input.size()) return estado_atual.de_aceitacao;
         if(!this.inputs_possiveis.contains(input.get(index))) return Boolean.FALSE;
         List<Transicao> transicoes = this.transicoes.stream()
@@ -94,19 +105,23 @@ public class Automato {
      * @return Boolean: TRUE -> possui estados inacessíveis : FALSE -> não possui estados inacessíveis
      * */
     public Boolean possui_estados_inacessiveis(){
-        List<Estado> estados_visitados = new ArrayList<>();
-        this.visite(estados_visitados, this.estado_inicial);
-        return estados_visitados.size() < this.estados.size();
+        return this.estados_iniciais.stream().anyMatch(
+            estado -> {
+                List<Estado> estados_visitados = new ArrayList<>();
+                this.visite(estados_visitados, estado);
+                return estados_visitados.size() < this.estados.size();
+            }
+        );
     }
     private void visite(List<Estado> estados_visitados, Estado estado_atual){
         estados_visitados.add(estado_atual);
         if(this.e_estado_morto(estado_atual)) return;
 
         this.transicoes.stream()
-                .filter(transicao -> Objects.equals(transicao.origem.id, estado_atual.id) && !estados_visitados.stream().map(estado -> estado.id).collect(Collectors.toList()).contains(transicao.destino.id)).map(transicao -> transicao.destino)
-                .forEach(estado -> {
-                    this.visite(estados_visitados, estado);
-                });
+            .filter(transicao -> Objects.equals(transicao.origem.id, estado_atual.id) && !estados_visitados.stream().map(estado -> estado.id).collect(Collectors.toList()).contains(transicao.destino.id)).map(transicao -> transicao.destino)
+            .forEach(estado -> {
+                this.visite(estados_visitados, estado);
+            });
     }
 
     /**
@@ -144,7 +159,7 @@ public class Automato {
      * Realiza o processo de atualização dos campos do autômato, como estado inicial, estados de a ceitação, etc...
      * */
     private void minimiza_parte_4() {
-        this.estado_inicial = this.estados.stream().filter(estado -> estado.inicial).findFirst().get();//atualiza o estado inicial
+        this.estados_iniciais = Collections.singletonList(this.estados.stream().filter(estado -> estado.inicial).findFirst().get());//atualiza o estado inicial
         //atualiza as transicoes
         List<Transicao> trans = new ArrayList<>();
         this.transicoes.forEach(transicao -> {
@@ -270,9 +285,9 @@ public class Automato {
 
         intermediario.inputs_possiveis = this.inputs_possiveis;
 
-        intermediario.estado_inicial = this.estado_inicial;
-
-        intermediario.estados_de_aceitacao.addAll(intermediario.estados.stream().filter(estado -> estado.de_aceitacao).collect(Collectors.toList()));
+//        intermediario.estados_iniciais = this.estados_iniciais;
+//
+//        intermediario.estados_de_aceitacao.addAll(intermediario.estados.stream().filter(estado -> estado.de_aceitacao).collect(Collectors.toList()));
     }
 
     /**

@@ -152,7 +152,7 @@ public class AutomatoUtil {
         toReturn.estados = AutomatoUtil.GET_ESTADOS(doc.getElementsByTagName("state"));
         toReturn.estados.stream()
             .filter(estado -> estado.inicial)
-                .findFirst().ifPresent(estado -> toReturn.estado_inicial = estado);
+                .forEach(estado -> toReturn.estados_iniciais.add(estado));
         toReturn.estados_de_aceitacao = toReturn.estados.stream().filter(estado -> estado.de_aceitacao).collect(Collectors.toList());
 
         toReturn.transicoes = AutomatoUtil.GET_TRANSICOES(doc.getElementsByTagName("transition"), toReturn.estados);
