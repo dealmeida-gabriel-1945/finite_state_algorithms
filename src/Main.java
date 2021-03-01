@@ -1,4 +1,5 @@
 import data_shape.Automato;
+import data_shape.Dupla;
 import data_shape.Estado;
 import data_shape.Transicao;
 import util.AutomatoUtil;
@@ -18,22 +19,19 @@ public class Main {
         gerenciarAutomatos();
     }
 /*============menus=============*/
-    public static void menu(){
-        System.out.println("====================MENU======================");
-        System.out.println("\t0. Manipular automatos salvos;");
-        System.out.print("\tSua escolha: ");
-    }
     public static void menuAutomatos(){
         System.out.println("\n\n====================MENU AUTOMATOS======================");
-        System.out.println("\t" + automatos.size() + " automato(s) cadastrados.");
-        System.out.println("\t1. Ver automato;");
-        System.out.println("\t2. Criar automato;");
-        System.out.println("\t3. Copiar automato;");
-        System.out.println("\t4. Minimizar automato;");
-        System.out.println("\t5. Excluir automato;");
-        System.out.println("\t~~~~~~~~~~~obre arquivos...");
-        System.out.println("\t6. Salvar em um arquivo;");
-        System.out.println("\t5. Sair;");
+        System.out.println("\t" + automatos.size() + " automato(s) carregados.");
+        System.out.println("\t1. Ver automato carregado;");
+        System.out.println("\t2. Salvar automato carregado em um arquivo;");
+        System.out.println("\t3. Carregar automato de um arquivo;");
+        System.out.println("\t4. Copiar um automato carregado;");
+        System.out.println("\t5. Minimizar um automato carregado;");
+        System.out.println("\t6. Excluir um automato carregado;");
+        System.out.println("\t7. Calcular estados equivalentes de um automato AFD carregado;");
+        System.out.println("\t8. Calcular equivalencia entre dois automatos AFD carregados;");
+        System.out.println("\t9. Submeter palavra;");
+        System.out.println("\t10. Sair;");
         System.out.print("\tSua escolha: ");
     }
 /*==========^^menus^^===========*/
@@ -48,24 +46,115 @@ public class Main {
                     mostrarAutomato();
                     break;
                 case 2:
-                    criarAutomato();
-                    break;
-                case 3:
-                    copiarAutomato();
-                    break;
-                case 4:
-                    minimizarAutomato();
-                    break;
-                case 5:
-                    excluirAutomato();
-                    break;
-                case 6:
                     salvarAutomatoEmArquivo();
                     break;
+                case 3:
+                    criarAutomato();
+                    break;
+                case 4:
+                    copiarAutomato();
+                    break;
+                case 5:
+                    minimizarAutomato();
+                    break;
+                case 6:
+                    excluirAutomato();
+                    break;
+                case 7:
+                    calculaEstadosEquivalentesAFD();
+                    break;
+                case 8:
+                    calculaEquivalenciaEntreAFD();
+                    break;
+                case 9:
+                    submetePalavra();
+                    break;
+                case 10:break;
                 default:
                     MessageUtil.ERRO_ESCOLHA_INVALIDA();
                     break;
             }
+        }
+    }
+
+    private static void submetePalavra(){
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+
+        int index = selecionarAutomato() - 1;
+
+        System.out.print("Digite a quantidade de letras: ");
+        Long qtd = ler.nextLong();
+
+        List<String> palavra = new ArrayList<>();
+
+        for (Long i = 0L; i < qtd; i++) {
+            System.out.print("(" + (i+1) + ") input: ");
+            palavra.add(ler.next());
+        }
+        System.out.println(
+            "A palavra " +
+            (automatos.get(index).pertence_a_linguagem(palavra, 0, automatos.get(index).estado_inicial) ? "" : " não ") +
+            "pertence à linguagem do autômato."
+        );
+    }
+
+    private static void calculaEquivalenciaEntreAFD(){
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+        if(automatos.stream().noneMatch(Automato::is_deterministico)){
+            MessageUtil.ERRO_AUTOMATOS_AFD_INSUFICIENTES();
+            return;
+        }
+
+        for (int i = 0; i < automatos.size(); i++) {
+            System.out.println((i + 1) + ".) " + (automatos.get(i).is_deterministico() ? "AFD" : "AFN"));
+        }
+
+        Boolean selected1 = Boolean.FALSE, selected2 = Boolean.FALSE;
+        Automato afd1 = new Automato(), afd2 = new Automato();
+        //Seleciona AFD 01
+        while (!selected1){
+            int automatoIndex = selecionarAutomato();
+            if(automatos.get(automatoIndex - 1).is_deterministico()){
+                selected1 = Boolean.TRUE;
+                afd1 = automatos.get(automatoIndex - 1);
+            }else{
+                MessageUtil.ERRO_AUTOMATO_NAO_E_AFD();
+            }
+        }
+        //Seleciona AFD 02
+        while (!selected2){
+            int automatoIndex = selecionarAutomato();
+            if(automatos.get(automatoIndex - 1).is_deterministico()){
+                selected2 = Boolean.TRUE;
+                afd2 = automatos.get(automatoIndex - 1);
+            }else{
+                MessageUtil.ERRO_AUTOMATO_NAO_E_AFD();
+            }
+        }
+        System.out.println((afd1.equivale_a(afd2) ? "São " : "Não são ") + "equivalentes!");
+    }
+
+    private static void calculaEstadosEquivalentesAFD(){
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+        if(automatos.stream().noneMatch(Automato::is_deterministico)){
+            MessageUtil.ERRO_AUTOMATOS_AFD_INSUFICIENTES();
+            return;
+        }
+        int automatoIndex = selecionarAutomato();
+        List<Dupla> duplas = automatos.get(automatoIndex - 1).calcula_estados_equivalentes();
+        if (duplas.size() == 0){
+            System.out.println("\tNenhum estado equivalente");
+        }else{
+            duplas.forEach(dupla -> System.out.println(dupla.estado_1.monta_string_show() + " x " + dupla.estado_2.monta_string_show()));
         }
     }
 

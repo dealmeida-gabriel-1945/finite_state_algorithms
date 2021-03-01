@@ -22,4 +22,12 @@ public class MessageUtil {
     public static void ERRO_NENHUM_AUTOMATO(){
         SHOW_ERROR("NENHUM AUTOMATO ENCONTRADO");
     }
+
+    public static void ERRO_AUTOMATOS_AFD_INSUFICIENTES(){
+        SHOW_ERROR("AUTOMATOS AFD INSUFICIENTES");
+    }
+
+    public static void ERRO_AUTOMATO_NAO_E_AFD(){
+        SHOW_ERROR("AUTOMATO NÃO É AFD");
+    }
 }

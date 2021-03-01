@@ -45,6 +45,11 @@ public class Estado {
         sb.append((this.inicial) ? "->" : "");
         sb.append((this.de_aceitacao) ? "[" : "");
         sb.append(this.nome);
+
+        sb.append("(id: ");
+        sb.append(this.id);
+        sb.append(")");
+
         sb.append((this.de_aceitacao) ? "]" : "");
         return sb.toString();
     }

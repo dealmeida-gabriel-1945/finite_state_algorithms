@@ -317,5 +317,18 @@ public class Automato {
             }
         }
     }
+
+    /**
+     * Retorna as duplas de estados que são equivalentes
+     * */
+    public List<Dupla> calcula_estados_equivalentes(){
+        List<Dupla> duplas = new ArrayList<>();
+        //monta as duplas de estados dos automatos
+        this.monta_duplas(duplas, this);
+        //verifica a equivalencia entre eles
+        this.equivalencia_entre_estados(duplas, this);
+        //retorna as duplas equivalentes
+        return duplas.stream().filter(dupla -> dupla.equivalentes).collect(Collectors.toList());
+    }
 }
 
