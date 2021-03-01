@@ -23,7 +23,7 @@ public class Dupla {
             Optional<Transicao> opt_estado_destino_1 = transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, this.estado_1.id) && Objects.equals(input, transicao.valor)).findFirst();
             Optional<Transicao> opt_estado_destino_2 = transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, this.estado_2.id) && Objects.equals(input, transicao.valor)).findFirst();
 
-            if(opt_estado_destino_1.isPresent() && opt_estado_destino_1.isPresent()){
+            if(opt_estado_destino_1.isPresent() && opt_estado_destino_2.isPresent()){
                 Estado estado_destino_1 = opt_estado_destino_1.get().destino;
                 Estado estado_destino_2 = opt_estado_destino_2.get().destino;
                 Optional<Dupla> dupla_12_opt = duplas.stream().filter(
@@ -41,7 +41,13 @@ public class Dupla {
                     }else{
                         this.depende_de.add(dupla_12);
                     }
+                }else{
+                    this.equivalentes = Boolean.FALSE;
+                    return;
                 }
+            }else{
+                this.equivalentes = Boolean.FALSE;
+                return;
             }
         }
         //caso todos as combinações não existirem, quer dizer que

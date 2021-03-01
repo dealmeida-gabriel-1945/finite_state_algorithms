@@ -6,6 +6,10 @@ public class Estado {
     public Boolean de_aceitacao = Boolean.FALSE;
     public Boolean inicial = Boolean.FALSE;
 
+    //Variaveis para recuperação nas multiplicações
+    public Long idElder1;
+    public Long idElder2;
+
     public Estado() { }
 
     public Estado(Estado toCopy) {

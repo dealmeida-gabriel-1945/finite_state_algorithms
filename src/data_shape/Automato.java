@@ -55,10 +55,10 @@ public class Automato {
     public Boolean pertence_a_linguagem(List<String> input, Integer index, Estado estado_atual){
         if(index >= input.size()) return estado_atual.de_aceitacao;
         if(!this.inputs_possiveis.contains(input.get(index))) return Boolean.FALSE;
-        Optional<Transicao> opt_trans = this.transicoes.stream()
-                .filter(transicao -> (Objects.equals(estado_atual.id, transicao.origem.id)) && (Objects.equals(input.get(index), transicao.valor))).findFirst();
-        if(!opt_trans.isPresent()) return Boolean.FALSE;
-        return this.pertence_a_linguagem(input, (index + 1), opt_trans.get().destino);
+        List<Transicao> transicoes = this.transicoes.stream()
+                .filter(transicao -> (Objects.equals(estado_atual.id, transicao.origem.id)) && (Objects.equals(input.get(index), transicao.valor))).collect(Collectors.toList());
+        if(transicoes.isEmpty()) return Boolean.FALSE;
+        return transicoes.stream().anyMatch(transicao -> this.pertence_a_linguagem(input, (index + 1), transicao.destino));
     }
 
     /**
@@ -235,20 +235,41 @@ public class Automato {
      * Popula o automato intermediario com os valores dos dois automatos a serem comparados
      * */
     private void equivalencia_pt1(Automato intermediario, Automato automato){
+        this.estados.forEach(estado -> {
+            Estado est = new Estado(estado);
+            est.idElder1 = estado.id;
+            est.id = AutomatoUtil.GERA_ID_NAO_UTILIZADO(intermediario.estados);
+            intermediario.estados.add(est);
+        });
+        this.transicoes.forEach(transicao -> {
+            Transicao trans = new Transicao(transicao);
+            trans.origem = intermediario.estados.stream().filter(estado -> Objects.equals(estado.idElder1, trans.origem.id)).findFirst().get();
+            trans.destino = intermediario.estados.stream().filter(estado -> Objects.equals(estado.idElder1, trans.destino.id)).findFirst().get();
+            intermediario.transicoes.add(trans);
+        });
 
-        intermediario.estados.addAll(this.estados);
-        intermediario.estados.addAll(automato.estados);
+        intermediario.estados.forEach(estado -> estado.idElder1 = null);
+
+        automato.estados.forEach(estado -> {
+            Estado est = new Estado(estado);
+            est.idElder1 = estado.id;
+            est.id = AutomatoUtil.GERA_ID_NAO_UTILIZADO(intermediario.estados);
+            intermediario.estados.add(est);
+        });
+        automato.transicoes.forEach(transicao -> {
+            Transicao trans = new Transicao(transicao);
+            trans.origem = intermediario.estados.stream().filter(estado -> Objects.equals(estado.idElder1, trans.origem.id)).findFirst().get();
+            trans.destino = intermediario.estados.stream().filter(estado -> Objects.equals(estado.idElder1, trans.destino.id)).findFirst().get();
+            intermediario.transicoes.add(trans);
+        });
+
+        intermediario.estados.forEach(estado -> estado.idElder1 = null);
 
         intermediario.inputs_possiveis = this.inputs_possiveis;
 
-        intermediario.transicoes.addAll(this.transicoes);
-        intermediario.transicoes.addAll(automato.transicoes);
-
         intermediario.estado_inicial = this.estado_inicial;
 
-        intermediario.estados_de_aceitacao.addAll(this.estados_de_aceitacao);
-        intermediario.estados_de_aceitacao.addAll(automato.estados_de_aceitacao);
-        intermediario.estados_de_aceitacao.addAll(automato.estados_de_aceitacao);
+        intermediario.estados_de_aceitacao.addAll(intermediario.estados.stream().filter(estado -> estado.de_aceitacao).collect(Collectors.toList()));
     }
 
     /**
@@ -268,7 +289,10 @@ public class Automato {
                                         duplaInterna.equivalentes = Boolean.TRUE;
                                     }
                                 }else{
-                                    duplaInterna.depende_de = new ArrayList<>();
+                                    if (dupla.estado_1.inicial && dupla.estado_2.inicial){
+                                        int i = 0;
+                                    }
+                                    duplaInterna.depende_de.clear();
                                     duplaInterna.equivalentes = Boolean.FALSE;
                                 }
                             });

@@ -7,6 +7,12 @@ public class Transicao {
 
     public Transicao() { }
 
+    public Transicao(Transicao transicao) {
+        this.origem = new Estado(transicao.origem);
+        this.destino = new Estado(transicao.destino);
+        this.valor = transicao.valor;
+    }
+
     public Transicao(Estado origem, Estado destino, String valor) {
         this.origem = origem;
         this.destino = destino;

@@ -28,10 +28,13 @@ public enum EnumOperador implements OperadorStrategy {
                     automato2.estados.forEach(
                         estado2 -> {
                             Estado est = new Estado(
+                                AutomatoUtil.GERA_ID_NAO_UTILIZADO(resultante.estados),
                                 String.join("_", estado1.nome, estado2.nome),
                                 estado1.de_aceitacao || estado2.de_aceitacao,
                                 estado1.inicial && estado2.inicial
                             );
+                            est.idElder1 = estado1.id;
+                            est.idElder2 = estado2.id;
                             resultante.estados.add(est);
                             if(est.inicial) resultante.estado_inicial = est;
                             if(est.de_aceitacao) resultante.estados_de_aceitacao.add(est);
@@ -58,10 +61,13 @@ public enum EnumOperador implements OperadorStrategy {
                     automato2.estados.forEach(
                         estado2 -> {
                             Estado est = new Estado(
+                                AutomatoUtil.GERA_ID_NAO_UTILIZADO(resultante.estados),
                                 String.join("_", estado1.nome, estado2.nome),
                                 estado1.de_aceitacao && estado2.de_aceitacao,
                                 estado1.inicial && estado2.inicial
                             );
+                            est.idElder1 = estado1.id;
+                            est.idElder2 = estado2.id;
                             resultante.estados.add(est);
                             if(est.inicial) resultante.estado_inicial = est;
                             if(est.de_aceitacao) resultante.estados_de_aceitacao.add(est);
