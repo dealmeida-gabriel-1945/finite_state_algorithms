@@ -82,7 +82,10 @@ public class Automato {
      * */
     public Boolean is_completo(){
         return this.estados.stream().allMatch(
-            estado -> this.inputs_possiveis.stream().allMatch(input -> this.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, estado.id) && Objects.equals(transicao.valor, input)).count() == 1)
+            estado ->
+                this.inputs_possiveis.stream().allMatch(
+                    input -> this.transicoes.stream().filter(transicao -> (transicao.origem.id == estado.id) && (Objects.equals(input, transicao.valor))).count() >= 1
+                )
         );
     }
 
@@ -195,7 +198,7 @@ public class Automato {
      * Função que visa completar as transições que faltam no atomato, levando
      * até um "estado morto"
      * */
-    private void completa() {
+    public void completa() {
         Estado estado_morto = new Estado(AutomatoUtil.GERA_ID_NAO_UTILIZADO(this.estados), AutomatoUtil.GERA_NOME_DO_ESTADO_MORTO(this.estados));
 
         List<Estado> estados_new = new ArrayList<>(this.estados);
