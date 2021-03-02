@@ -8,6 +8,7 @@ public class ExemploUtil {
     public static String EXEMPLO_04 = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_4/exemplo_04.jff";
     public static String EXEMPLO_05 = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_5/exemplo_05.jff";
     public static String EXEMPLO_05_COMPLETO = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_5/exemplo_05_comp.jff";
+    public static String EXEMPLO_06 = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_6/exemplo_06.jff";
 
     public static String VERDE = "\033[0;32m";
     public static String VERMELHO = "\033[0;31m";

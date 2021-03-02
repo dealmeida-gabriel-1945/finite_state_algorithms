@@ -14,5 +14,7 @@ public class _index {
         TesteVerificacaoCompletude02_UT10.main();
         TesteVerificacaoEstadosInalcancaveis01_UT11.main();
         TesteVerificacaoCadeiaAFN02_UT12.main();
+        TesteVerificacaoEstadosInalcancaveis02_UT12.main();
+        TesteVerificacaoEstadosInalcancaveis03_UT13.main();
     }
 }

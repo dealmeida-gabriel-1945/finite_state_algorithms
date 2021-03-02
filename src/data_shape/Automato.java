@@ -77,6 +77,7 @@ public class Automato {
      * @return Boolean: TRUE -> é determinístico : FALSE -> não é determinístico
      * */
     public Boolean is_deterministico(){
+        if(this.estados_iniciais.size() != 1) return Boolean.FALSE;
         return this.estados.stream().allMatch(
             estado ->
                 this.inputs_possiveis.stream().allMatch(
@@ -105,23 +106,22 @@ public class Automato {
      * @return Boolean: TRUE -> possui estados inacessíveis : FALSE -> não possui estados inacessíveis
      * */
     public Boolean possui_estados_inacessiveis(){
-        return this.estados_iniciais.stream().anyMatch(
-            estado -> {
-                List<Estado> estados_visitados = new ArrayList<>();
-                this.visite(estados_visitados, estado);
-                return estados_visitados.size() < this.estados.size();
-            }
+        List<Estado> estados_visitados = new ArrayList<>();
+        this.estados_iniciais.forEach(
+            estadoInicial -> this.visite(estados_visitados, estadoInicial)
         );
+        return !estados_visitados.stream().map(item -> item.id).collect(Collectors.toList())
+            .containsAll(this.estados.stream().map(item -> item.id).collect(Collectors.toList()));
     }
     private void visite(List<Estado> estados_visitados, Estado estado_atual){
         estados_visitados.add(estado_atual);
         if(this.e_estado_morto(estado_atual)) return;
 
         this.transicoes.stream()
-            .filter(transicao -> Objects.equals(transicao.origem.id, estado_atual.id) && !estados_visitados.stream().map(estado -> estado.id).collect(Collectors.toList()).contains(transicao.destino.id)).map(transicao -> transicao.destino)
-            .forEach(estado -> {
-                this.visite(estados_visitados, estado);
-            });
+            .filter(
+                transicao -> (transicao.destino.id != estado_atual.id) && (transicao.origem.id == estado_atual.id) && !estados_visitados.stream().map(estado -> estado.id).collect(Collectors.toList()).contains(transicao.destino.id)
+            ).map(transicao -> transicao.destino)
+            .forEach(estado -> this.visite(estados_visitados, estado));
     }
 
     /**
