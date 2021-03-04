@@ -146,11 +146,4 @@ public enum EnumOperador implements OperadorStrategy {
             );
         }
     };
-//TODO: continuar implementação das operações
-//    COMPLEMENTO{
-//        @Override
-//        public Automato executaOperacao(Automato automato1, Automato automato2) {
-//            return null;
-//        }
-//    };
 }
