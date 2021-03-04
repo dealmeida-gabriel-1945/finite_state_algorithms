@@ -3,6 +3,6 @@ package data_shape.strategy;
 import data_shape.Automato;
 
 public interface OperadorStrategy {
-    Automato executaOperacao(Automato automato1, Automato automato2);
-    void multiplicaEstados(Automato automato1, Automato automato2, Automato resultante);
+    Automato executaOperacao(Automato automatoA, Automato automatoB);
+    void multiplicaEstados(Automato automatoA, Automato automatoB, Automato resultante);
 }

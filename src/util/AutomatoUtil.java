@@ -19,15 +19,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AutomatoUtil {
-    public static List<Transicao> MULTIPLICA_TRANSICOES(Automato automato1, Automato automato2, Automato resultante) {
+    public static List<Transicao> MULTIPLICA_TRANSICOES(Automato automatoA, Automato automatoB, Automato resultante) {
         List<Transicao> resultado = new ArrayList<>();
         resultante.estados.forEach(
             estado -> resultante.inputs_possiveis.forEach(
                 input ->{
-                    Optional<Transicao> opt_trans1 = automato1.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, estado.idElder1) && Objects.equals(transicao.valor, input)).findFirst();
-                    Optional<Transicao> opt_trans2 = automato2.transicoes.stream().filter(transicao -> Objects.equals(transicao.origem.id, estado.idElder2) && Objects.equals(transicao.valor, input)).findFirst();
+                    Optional<Transicao> opt_trans1 = automatoA.transicoes.stream().filter(transicao -> (transicao.origem.id == estado.idElder1) && Objects.equals(transicao.valor, input)).findFirst();
+                    Optional<Transicao> opt_trans2 = automatoB.transicoes.stream().filter(transicao -> (transicao.origem.id == estado.idElder2) && Objects.equals(transicao.valor, input)).findFirst();
                     if(opt_trans1.isPresent() && opt_trans2.isPresent()){
-                        Optional<Estado> opt_estado_destino = resultante.estados.stream().filter(estadoDestino -> (((estadoDestino.idElder1 == opt_trans1.get().destino.id) && (estadoDestino.idElder2 == opt_trans2.get().destino.id)) || ((estadoDestino.idElder1 == opt_trans2.get().destino.id) && (estadoDestino.idElder2 == opt_trans1.get().destino.id)))).findFirst();
+                        Optional<Estado> opt_estado_destino = resultante.estados.stream().filter(estadoDestino -> (((estadoDestino.idElder1 == opt_trans1.get().destino.id) && (estadoDestino.idElder2 == opt_trans2.get().destino.id)))).findFirst();
                         if (opt_estado_destino.isPresent()){
                             Transicao trans = new Transicao();
                             trans.valor = input;

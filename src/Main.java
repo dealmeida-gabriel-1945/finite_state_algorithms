@@ -2,6 +2,7 @@ import data_shape.Automato;
 import data_shape.Dupla;
 import data_shape.Estado;
 import data_shape.Transicao;
+import data_shape.enums.EnumOperador;
 import util.AutomatoUtil;
 import util.MenuUtil;
 import util.MessageUtil;
@@ -9,6 +10,7 @@ import util.MessageUtil;
 import javax.rmi.CORBA.Util;
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -31,14 +33,15 @@ public class Main {
         System.out.println("\t7. Calcular estados equivalentes de um automato AFD carregado;");
         System.out.println("\t8. Calcular equivalencia entre dois automatos AFD carregados;");
         System.out.println("\t9. Submeter palavra;");
-        System.out.println("\t10. Sair;");
+        System.out.println("\t10. Multiplicar automatos e aplicar operações;");
+        System.out.println("\t11. Sair;");
         System.out.print("\tSua escolha: ");
     }
 /*==========^^menus^^===========*/
 
     public static void gerenciarAutomatos(){
         int escolha = 0;
-        while (escolha != 10){
+        while (escolha != 11){
             menuAutomatos();
             escolha = ler.nextInt();
             switch (escolha){
@@ -69,11 +72,33 @@ public class Main {
                 case 9:
                     submetePalavra();
                     break;
-                case 10:break;
+                case 10:
+                    mutiplicaAutomatos();
+                    break;
+                case 11:break;
                 default:
                     MessageUtil.ERRO_ESCOLHA_INVALIDA();
                     break;
             }
+        }
+    }
+
+    private static void mutiplicaAutomatos() {
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+        System.out.println("Selecione o automato A:");
+        int indexA = selecionarAutomato() - 1;
+        System.out.println("Selecione o automato B:");
+        int indexB = selecionarAutomato() - 1;
+
+        int indexOperador = MenuUtil.MOSTRA_MENU("Selecione a operação:", Arrays.stream(EnumOperador.values()).map(Enum::name).collect(Collectors.toList()), ler) - 1;
+        Automato resultado = EnumOperador.values()[indexOperador].executaOperacao(automatos.get(indexA), automatos.get(indexB));
+        resultado.show();
+
+        if(MenuUtil.MOSTRA_MENU("Deseja salvar o automato resultante?", Arrays.asList("Sim", "Não"), ler) == 1){
+            automatos.add(resultado);
         }
     }
 

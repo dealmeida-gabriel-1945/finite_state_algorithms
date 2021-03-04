@@ -9,6 +9,12 @@ public class ExemploUtil {
     public static String EXEMPLO_05 = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_5/exemplo_05.jff";
     public static String EXEMPLO_05_COMPLETO = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_5/exemplo_05_comp.jff";
     public static String EXEMPLO_06 = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_6/exemplo_06.jff";
+    public static String EXEMPLO_07_A = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_7/exemplo_07_A.jff";
+    public static String EXEMPLO_07_B = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_7/exemplo_07_B.jff";
+    public static String EXEMPLO_07_UNIAO = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_7/exemplo_07_uniao.jff";
+    public static String EXEMPLO_07_INTERCESSAO = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_7/exemplo_07_intercessao.jff";
+    public static String EXEMPLO_07_DIFERENCA = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_7/exemplo_07_diferenca.jff";
+    public static String EXEMPLO_07_COMPLEMENTO = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_7/exemplo_07_complemento.jff";
 
     public static String VERDE = "\033[0;32m";
     public static String VERMELHO = "\033[0;31m";
