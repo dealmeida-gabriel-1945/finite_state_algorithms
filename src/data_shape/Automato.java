@@ -140,7 +140,7 @@ public class Automato {
     public void minimiza(){
         //verifica se pode ser ocorrido a minimização
         if(!this.is_completo()) this.completa();
-        if(!this.is_deterministico() || this.possui_estados_inacessiveis()){
+        if(!this.is_deterministico() || this.possui_estados_inacessiveis() || (this.estados.size() == 1)){
             MessageUtil.ERRO_IMPOSSIVEL_MINIMIZAR();
             return;
         }
