@@ -350,13 +350,14 @@ public class Automato {
         return this.transicoes.stream().anyMatch(item -> Objects.equals(AutomatoUtil.STRING_EMPTY, item.valor));
     }
 
+    /**
+     * Esta função altera o próprio objeto, tirando os movimentos vazios
+     * */
     public void remove_movimentos_vazios(){
         //nesta parte teremos que montar as tabelas e adicionar as novas transições
-        this.inputs_possiveis.forEach(
-            input -> this.estados.forEach(
-                estado -> {
-                    this.transicoes.addAll(this.gera_nova_transicao_nao_vazia(input, estado));
-                }
+        this.inputs_possiveis.forEach(//faz as tabelas (letra por letra)
+            input -> this.estados.forEach(//faz a linha das tabelas (estado por estado)
+                estado -> this.transicoes.addAll(this.gera_nova_transicao_nao_vazia(input, estado))
             )
         );
 
@@ -367,58 +368,84 @@ public class Automato {
         this.inputs_possiveis = this.inputs_possiveis.stream().filter(item -> !Objects.equals(AutomatoUtil.STRING_EMPTY, item)).collect(Collectors.toList());
     }
 
+    /**
+     * Gera as transições não vazias do input e estado dado
+     * @param input - letra do alfabeto a ser usada
+     * @param origem - estado, de onde vai partir a transição
+     * */
     private List<Transicao> gera_nova_transicao_nao_vazia(String input, Estado origem) {
+        //cria vetor para retornar
         List<Transicao> toReturn = new ArrayList<>();
 
+        //inicia o primeiro fecho (començando com a origem)
         List<Estado> primeiroFecho = new ArrayList<>(Collections.singletonList(origem));
+        //busca os estados alcançáveis sem gastar nada a partir do origem
         primeiroFecho.addAll(
             this.transicoes.stream()
                 .filter(transicao -> (Objects.equals(transicao.origem.id, origem.id)) && (Objects.equals(AutomatoUtil.STRING_EMPTY, transicao.valor)))
                     .map(transicao -> transicao.destino)
                         .collect(Collectors.toList())
         );
+        //retira as repetições
         primeiroFecho = AutomatoUtil.LIST_ESTADOS_SEM_REPETICAO(primeiroFecho);
+        //cria vetor com os ids dos estados do fecho
         List<Long> idsPrimeiroFecho = primeiroFecho.stream().map(item -> item.id).collect(Collectors.toList());
 
+        //busca os estados alcançáveis gastando o input do primeiro fecho
         List<Estado> estadosGastando = this.transicoes.stream()
             .filter(transicao -> idsPrimeiroFecho.contains(transicao.origem.id) && (Objects.equals(transicao.valor, input)))
                 .map(transicao -> transicao.destino)
                     .collect(Collectors.toList());
+        //retira as repetições
         estadosGastando = AutomatoUtil.LIST_ESTADOS_SEM_REPETICAO(estadosGastando);
         List<Long> idsEstadosGastando = estadosGastando.stream().map(item -> item.id).collect(Collectors.toList());
 
+        //busca o segundo fecho à partir dos estados alcançáveis gastando o input sem gastar nada
         List<Estado> segundoFecho = this.transicoes.stream()
             .filter(transicao -> idsEstadosGastando.contains(transicao.origem.id) && (Objects.equals(AutomatoUtil.STRING_EMPTY, transicao.valor)))
                 .map(transicao -> transicao.destino)
                     .collect(Collectors.toList());
+        //adicionando os estados que gastam
         segundoFecho.addAll(estadosGastando);
+        //retira as repetições
         segundoFecho = AutomatoUtil.LIST_ESTADOS_SEM_REPETICAO(segundoFecho);
 
+        //cria as transições
         segundoFecho.forEach(estado -> toReturn.add(new Transicao(origem, estado, input)));
         return toReturn;
     }
 
     public void to_afd(){
+        //se o autonomo possuir mais de um estado inicial, devemos tratar
         if(this.estados_iniciais.size() > 0) this.trata_varios_estados_iniciais();
+        //a nova leva de estados começa com o (único) estado incial
         this.estados_iniciais.get(0).idsElders = Collections.singletonList(this.estados_iniciais.get(0).id);
 
+        //os novos estados criados
         List<Estado> novosEstados = new ArrayList<>();
         novosEstados.add(this.estados_iniciais.get(0));
+        //as novas transições
         List<Transicao> novasTransicoes = new ArrayList<>();
 
+        //vai percorrendo os novos estados
         for (int i = 0; i < novosEstados.size(); i++) {
             Estado estado = novosEstados.get(i);
+            //percorre o alfabeto
             inputs_possiveis.forEach(
                     input -> {
+                        //procura os estados que você chega gastando o input (sem repetição)
                         List<Estado> elders = AutomatoUtil.LIST_ESTADOS_SEM_REPETICAO(
                             this.transicoes.stream().filter(
                                 transicao -> estado.idsElders.contains(transicao.origem.id) && Objects.equals(input, transicao.valor)
                             ).map(transicao -> transicao.destino).collect(Collectors.toList())
                         );
 
+                        //verifica se há um estado gerado pela a cobinação dos estados anteriores
                         if (AutomatoUtil.POSSUI_ESTADO_GERADO_POR(novosEstados, elders.stream().map(item -> item.id).collect(Collectors.toList()))) {
+                            //se houver, apenas o busca e cria e adiciona uma nova transição partino do estado para o buscado
                             novasTransicoes.add(new Transicao(estado, AutomatoUtil.PEGA_ESTADO_GERADO_POR(novosEstados, elders.stream().map(item -> item.id).collect(Collectors.toList())), input));
                         } else {
+                            //se não houver, cria o novo estado
                             Estado novoEstado = new Estado(
                                     AutomatoUtil.GERA_ID_NAO_UTILIZADO(novosEstados),
                                     elders.stream().map(item -> item.nome).collect(Collectors.joining("_")),
@@ -426,20 +453,25 @@ public class Automato {
                                     Boolean.FALSE,
                                     elders.stream().map(item -> item.id).collect(Collectors.toList())
                             );
+                            //adiciona o novo estado na lista de novos estados
                             novosEstados.add(novoEstado);
+                            //cria e adiciona a nova transição
                             novasTransicoes.add(new Transicao(estado, novoEstado, input));
                         }
                     }
             );
         }
 
+        //substitui os dados
         this.estados = novosEstados;
         this.estados_de_aceitacao = this.estados.stream().filter(item -> item.de_aceitacao).collect(Collectors.toList());
         this.transicoes = novasTransicoes;
+        //completa o automato
         this.completa();
     }
 
     private void trata_varios_estados_iniciais(){
+        //cria um novo estado para ser o único estado inicial
         Estado novoInicio = new Estado(
             AutomatoUtil.GERA_ID_NAO_UTILIZADO(this.estados),
             AutomatoUtil.GERA_NOME_NAO_UTILIZADO(this.estados),
@@ -447,12 +479,17 @@ public class Automato {
             Boolean.TRUE
         );
 
+        //seta o único estado inicial
         this.estados_iniciais = Collections.singletonList(novoInicio);
+        //cria as transições vazias
         this.estados.stream().filter(estado -> estado.inicial).forEach(
             estado -> this.transicoes.add(new Transicao(novoInicio, estado, AutomatoUtil.STRING_EMPTY))
         );
+        //seta todos os estados como não iniciais
         this.estados.forEach(estado -> estado.inicial = Boolean.FALSE);
+        //adiciona o novo estado inicial
         this.estados.add(novoInicio);
+        //remove os estados vazios
         this.remove_movimentos_vazios();
     }
 }

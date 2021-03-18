@@ -7,7 +7,7 @@ import util.ExemploUtil;
 public class TesteTransformaAfnEmAfd01_UT18 {
     public static void main() {
         try{
-            Automato automato = AutomatoUtil.READ_FILE(ExemploUtil.EXEMPLO_08);
+            Automato automato = AutomatoUtil.READ_FILE(ExemploUtil.EXEMPLO_06);
             Automato semMov = new Automato(automato);
             Automato afd = new Automato(automato);
 
