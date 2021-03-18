@@ -1,5 +1,8 @@
 package data_shape;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Estado {
     public Long id;
     public String nome;
@@ -10,6 +13,9 @@ public class Estado {
     public Long idElder1;
     public Long idElder2;
 
+    //Variaveis para recuperação na transformação de afn para afd
+    public List<Long> idsElders = new ArrayList<>();
+
     public Estado() { }
 
     public Estado(Estado toCopy) {
@@ -19,10 +25,12 @@ public class Estado {
         this.inicial = toCopy.inicial;
     }
 
-    public Estado(String nome, Boolean de_aceitacao, Boolean inicial) {
+    public Estado(Long id, String nome, Boolean de_aceitacao, Boolean inicial, List<Long> idsElders) {
+        this.id = id;
         this.nome = nome;
         this.de_aceitacao = de_aceitacao;
         this.inicial = inicial;
+        this.idsElders = idsElders;
     }
 
     public Estado(Long id, String nome, Boolean de_aceitacao, Boolean inicial) {

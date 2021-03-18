@@ -30,4 +30,12 @@ public class MessageUtil {
     public static void ERRO_AUTOMATO_NAO_E_AFD(){
         SHOW_ERROR("AUTOMATO NÃO É AFD");
     }
+
+    public static void ERRO_AUTOMATO_NAO_E_AFN(){
+        SHOW_ERROR("AUTOMATO NÃO É AFN");
+    }
+
+    public static void ERRO_AUTOMATO_NAO_POSSUI_MOVIMENTO_VAZIO(){
+        SHOW_ERROR("AUTOMATO NÃO POSSI MOVIMENTO VAZIO");
+    }
 }

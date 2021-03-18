@@ -34,14 +34,16 @@ public class Main {
         System.out.println("\t8. Calcular equivalencia entre dois automatos AFD carregados;");
         System.out.println("\t9. Submeter palavra;");
         System.out.println("\t10. Multiplicar automatos e aplicar operações;");
-        System.out.println("\t11. Sair;");
+        System.out.println("\t11. Remover Movimentos vazios;");
+        System.out.println("\t12. Transformar AFN em AFD;");
+        System.out.println("\t13. Sair;");
         System.out.print("\tSua escolha: ");
     }
 /*==========^^menus^^===========*/
 
     public static void gerenciarAutomatos(){
         int escolha = 0;
-        while (escolha != 11){
+        while (escolha != 13){
             menuAutomatos();
             escolha = ler.nextInt();
             switch (escolha){
@@ -75,7 +77,13 @@ public class Main {
                 case 10:
                     mutiplicaAutomatos();
                     break;
-                case 11:break;
+                case 11:
+                    retiraMovimentosVazios();
+                    break;
+                case 12:
+                    transformaAfnEmAfd();
+                    break;
+                case 13:break;
                 default:
                     MessageUtil.ERRO_ESCOLHA_INVALIDA();
                     break;
@@ -264,5 +272,49 @@ public class Main {
         }
         int automatoIndex = selecionarAutomato();
         automatos.get(automatoIndex - 1).show();
+    }
+
+    private static void retiraMovimentosVazios(){
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+        int index = selecionarAutomato() - 1;
+        Automato toWork = new Automato(automatos.get(index));
+        if(!toWork.possui_movimentos_vazios()) {
+            MessageUtil.ERRO_AUTOMATO_NAO_POSSUI_MOVIMENTO_VAZIO();
+            return;
+        }
+        toWork.remove_movimentos_vazios();
+
+        if(MenuUtil.MOSTRA_MENU("Deseja salvar o automato sem os movimentos vazios?", Arrays.asList("Sim", "Não"), ler) == 1){
+            if(MenuUtil.MOSTRA_MENU("Deseja sobrescrever o automato sem os movimentos vazios?", Arrays.asList("Sim", "Não"), ler) == 1){
+                automatos.set(index, toWork);
+            }else{
+                automatos.add(toWork);
+            }
+        }
+    }
+
+    private static void transformaAfnEmAfd() {
+        if(automatos.size() == 0){
+            MessageUtil.ERRO_NENHUM_AUTOMATO();
+            return;
+        }
+        int index = selecionarAutomato() - 1;
+        Automato toWork = new Automato(automatos.get(index));
+        if(toWork.is_deterministico()) {
+            MessageUtil.ERRO_AUTOMATO_NAO_E_AFN();
+            return;
+        }
+        toWork.to_afd();
+
+        if(MenuUtil.MOSTRA_MENU("Deseja salvar o automato tranformado?", Arrays.asList("Sim", "Não"), ler) == 1){
+            if(MenuUtil.MOSTRA_MENU("Deseja sobrescrever o automato tranformado?", Arrays.asList("Sim", "Não"), ler) == 1){
+                automatos.set(index, toWork);
+            }else{
+                automatos.add(toWork);
+            }
+        }
     }
 }

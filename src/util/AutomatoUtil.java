@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AutomatoUtil {
+    public static String STRING_EMPTY = "";
+
     public static List<Transicao> MULTIPLICA_TRANSICOES(Automato automatoA, Automato automatoB, Automato resultante) {
         List<Transicao> resultado = new ArrayList<>();
         resultante.estados.forEach(
@@ -206,30 +208,45 @@ public class AutomatoUtil {
         if(estados.isEmpty()) return 0L;
         return Collections.max(estados.stream().map(item -> item.id).collect(Collectors.toList())) + 1;
     }
+    /**
+     * Função para gerar um id de estado que não existe no automato
+     * */
+    public static String GERA_NOME_NAO_UTILIZADO(List<Estado> estados) {
+        String nome_inicial = "novo_estado";
+        List<String> nomes = estados.stream().map(estado -> estado.nome).collect(Collectors.toList());
+        while(nomes.contains(nome_inicial)){
+            nome_inicial+=".";
+        }
+        return nome_inicial;
+    }
 
-    /*
-    *
-    NodeList nList = doc.getElementsByTagName("state");
+    public static List<Estado> LIST_ESTADOS_SEM_REPETICAO(List<Estado> withRepeat){
+        List<Estado> toReturn = new ArrayList<>();
+        withRepeat.forEach(
+            estado -> {
+                if (!toReturn.stream().map(i -> i.id).collect(Collectors.toList()).contains(estado.id)){
+                    toReturn.add(estado);
+                }
+            }
+        );
+        return toReturn;
+    }
 
-        for (int i = 0; i < nList.getLength(); i++) {
-            Node nNode = nList.item(i);
-
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-
-                Element eElement = (Element) nNode;
-                Estado estado = new Estado();
-                estado.nome = eElement.getAttribute("id");
-                estado.inicial = Objects.nonNull(eElement.getElementsByTagName("initial").item(0));
-                estado.de_aceitacao = Objects.nonNull(eElement.getElementsByTagName("final").item(0));
-
-                System.out.println("id : " + eElement.getAttribute("id"));
-                System.out.println("name : " + eElement.getAttribute("name"));
-                System.out.println("x : " + eElement.getElementsByTagName("x").item(0).getTextContent());
-                System.out.println("y : " + eElement.getElementsByTagName("y").item(0).getTextContent());
-                System.out.println("inicial : " + Objects.nonNull(eElement.getElementsByTagName("initial").item(0)));
-                System.out.println("final : " + Objects.nonNull(eElement.getElementsByTagName("final").item(0)));
-
+    public static Boolean POSSUI_ESTADO_GERADO_POR(List<Estado> estados, List<Long> idsElders) {
+        for (Estado estado : estados) {
+            if(estado.idsElders.containsAll(idsElders) && idsElders.containsAll(estado.idsElders)){
+                return  Boolean.TRUE;
             }
         }
-    * */
+        return Boolean.FALSE;
+    }
+
+    public static Estado PEGA_ESTADO_GERADO_POR(List<Estado> estados, List<Long> idsElders) {
+        for (Estado estado : estados) {
+            if(estado.idsElders.containsAll(idsElders) && idsElders.containsAll(estado.idsElders)){
+                return estado;
+            }
+        }
+        return null;
+    }
 }

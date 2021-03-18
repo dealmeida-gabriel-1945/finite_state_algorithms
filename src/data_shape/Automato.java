@@ -77,7 +77,7 @@ public class Automato {
      * @return Boolean: TRUE -> é determinístico : FALSE -> não é determinístico
      * */
     public Boolean is_deterministico(){
-        if(this.estados_iniciais.size() != 1) return Boolean.FALSE;
+        if((this.estados_iniciais.size() != 1) || this.possui_movimentos_vazios()) return Boolean.FALSE;
         return this.estados.stream().allMatch(
             estado ->
                 this.inputs_possiveis.stream().allMatch(
@@ -344,6 +344,116 @@ public class Automato {
         this.equivalencia_entre_estados(duplas, this);
         //retorna as duplas equivalentes
         return duplas.stream().filter(dupla -> dupla.equivalentes).collect(Collectors.toList());
+    }
+
+    public Boolean possui_movimentos_vazios(){
+        return this.transicoes.stream().anyMatch(item -> Objects.equals(AutomatoUtil.STRING_EMPTY, item.valor));
+    }
+
+    public void remove_movimentos_vazios(){
+        //nesta parte teremos que montar as tabelas e adicionar as novas transições
+        this.inputs_possiveis.forEach(
+            input -> this.estados.forEach(
+                estado -> {
+                    this.transicoes.addAll(this.gera_nova_transicao_nao_vazia(input, estado));
+                }
+            )
+        );
+
+        //remove os movimentos
+        this.transicoes = this.transicoes.stream().filter(transicao -> !Objects.equals(AutomatoUtil.STRING_EMPTY, transicao.valor)).collect(Collectors.toList());
+
+        //remove o input vazio
+        this.inputs_possiveis = this.inputs_possiveis.stream().filter(item -> !Objects.equals(AutomatoUtil.STRING_EMPTY, item)).collect(Collectors.toList());
+    }
+
+    private List<Transicao> gera_nova_transicao_nao_vazia(String input, Estado origem) {
+        List<Transicao> toReturn = new ArrayList<>();
+
+        List<Estado> primeiroFecho = new ArrayList<>(Collections.singletonList(origem));
+        primeiroFecho.addAll(
+            this.transicoes.stream()
+                .filter(transicao -> (Objects.equals(transicao.origem.id, origem.id)) && (Objects.equals(AutomatoUtil.STRING_EMPTY, transicao.valor)))
+                    .map(transicao -> transicao.destino)
+                        .collect(Collectors.toList())
+        );
+        primeiroFecho = AutomatoUtil.LIST_ESTADOS_SEM_REPETICAO(primeiroFecho);
+        List<Long> idsPrimeiroFecho = primeiroFecho.stream().map(item -> item.id).collect(Collectors.toList());
+
+        List<Estado> estadosGastando = this.transicoes.stream()
+            .filter(transicao -> idsPrimeiroFecho.contains(transicao.origem.id) && (Objects.equals(transicao.valor, input)))
+                .map(transicao -> transicao.destino)
+                    .collect(Collectors.toList());
+        estadosGastando = AutomatoUtil.LIST_ESTADOS_SEM_REPETICAO(estadosGastando);
+        List<Long> idsEstadosGastando = estadosGastando.stream().map(item -> item.id).collect(Collectors.toList());
+
+        List<Estado> segundoFecho = this.transicoes.stream()
+            .filter(transicao -> idsEstadosGastando.contains(transicao.origem.id) && (Objects.equals(AutomatoUtil.STRING_EMPTY, transicao.valor)))
+                .map(transicao -> transicao.destino)
+                    .collect(Collectors.toList());
+        segundoFecho.addAll(estadosGastando);
+        segundoFecho = AutomatoUtil.LIST_ESTADOS_SEM_REPETICAO(segundoFecho);
+
+        segundoFecho.forEach(estado -> toReturn.add(new Transicao(origem, estado, input)));
+        return toReturn;
+    }
+
+    public void to_afd(){
+        if(this.estados_iniciais.size() > 0) this.trata_varios_estados_iniciais();
+        this.estados_iniciais.get(0).idsElders = Collections.singletonList(this.estados_iniciais.get(0).id);
+
+        List<Estado> novosEstados = new ArrayList<>();
+        novosEstados.add(this.estados_iniciais.get(0));
+        List<Transicao> novasTransicoes = new ArrayList<>();
+
+        for (int i = 0; i < novosEstados.size(); i++) {
+            Estado estado = novosEstados.get(i);
+            inputs_possiveis.forEach(
+                    input -> {
+                        List<Estado> elders = AutomatoUtil.LIST_ESTADOS_SEM_REPETICAO(
+                            this.transicoes.stream().filter(
+                                transicao -> estado.idsElders.contains(transicao.origem.id) && Objects.equals(input, transicao.valor)
+                            ).map(transicao -> transicao.destino).collect(Collectors.toList())
+                        );
+
+                        if (AutomatoUtil.POSSUI_ESTADO_GERADO_POR(novosEstados, elders.stream().map(item -> item.id).collect(Collectors.toList()))) {
+                            novasTransicoes.add(new Transicao(estado, AutomatoUtil.PEGA_ESTADO_GERADO_POR(novosEstados, elders.stream().map(item -> item.id).collect(Collectors.toList())), input));
+                        } else {
+                            Estado novoEstado = new Estado(
+                                    AutomatoUtil.GERA_ID_NAO_UTILIZADO(novosEstados),
+                                    elders.stream().map(item -> item.nome).collect(Collectors.joining("_")),
+                                    elders.stream().anyMatch(item -> item.de_aceitacao),
+                                    Boolean.FALSE,
+                                    elders.stream().map(item -> item.id).collect(Collectors.toList())
+                            );
+                            novosEstados.add(novoEstado);
+                            novasTransicoes.add(new Transicao(estado, novoEstado, input));
+                        }
+                    }
+            );
+        }
+
+        this.estados = novosEstados;
+        this.estados_de_aceitacao = this.estados.stream().filter(item -> item.de_aceitacao).collect(Collectors.toList());
+        this.transicoes = novasTransicoes;
+        this.completa();
+    }
+
+    private void trata_varios_estados_iniciais(){
+        Estado novoInicio = new Estado(
+            AutomatoUtil.GERA_ID_NAO_UTILIZADO(this.estados),
+            AutomatoUtil.GERA_NOME_NAO_UTILIZADO(this.estados),
+            Boolean.FALSE,
+            Boolean.TRUE
+        );
+
+        this.estados_iniciais = Collections.singletonList(novoInicio);
+        this.estados.stream().filter(estado -> estado.inicial).forEach(
+            estado -> this.transicoes.add(new Transicao(novoInicio, estado, AutomatoUtil.STRING_EMPTY))
+        );
+        this.estados.forEach(estado -> estado.inicial = Boolean.FALSE);
+        this.estados.add(novoInicio);
+        this.remove_movimentos_vazios();
     }
 }
 

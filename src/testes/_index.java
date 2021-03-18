@@ -20,5 +20,6 @@ public class _index {
         TesteMultiplicacao02_UT15.main();
         TesteMultiplicacao03_UT16.main();
         TesteMultiplicacao04_UT17.main();
+        TesteTransformaAfnEmAfd01_UT18.main();
     }
 }

@@ -15,6 +15,9 @@ public class ExemploUtil {
     public static String EXEMPLO_07_INTERCESSAO = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_7/exemplo_07_intercessao.jff";
     public static String EXEMPLO_07_DIFERENCA = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_7/exemplo_07_diferenca.jff";
     public static String EXEMPLO_07_COMPLEMENTO = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_7/exemplo_07_complemento.jff";
+    public static String EXEMPLO_08 = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_8/exemplo_8.jff";
+    public static String EXEMPLO_08_SEM_MOVIMENTOS_VAZIOS = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_8/exemplo_8_SMV.jff";
+    public static String EXEMPLO_08_AFD = "/home/gabriel_guimaraes/Documents/Gabriel/IFMG/p_4/LFA/trabalho_automatos/exemplos/exemplo_8/exemplo_8_AFD.jff";
 
     public static String VERDE = "\033[0;32m";
     public static String VERMELHO = "\033[0;31m";
