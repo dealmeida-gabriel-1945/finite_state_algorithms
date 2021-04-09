@@ -417,7 +417,7 @@ public class Automato {
 
     public void to_afd(){
         //se o autonomo possuir mais de um estado inicial, devemos tratar
-        if(this.estados_iniciais.size() > 0) this.trata_varios_estados_iniciais();
+        if(this.estados_iniciais.size() > 1) this.trata_varios_estados_iniciais();
         //a nova leva de estados começa com o (único) estado incial
         this.estados_iniciais.get(0).idsElders = Collections.singletonList(this.estados_iniciais.get(0).id);
 
