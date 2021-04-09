@@ -307,6 +307,9 @@ public class Main {
             MessageUtil.ERRO_AUTOMATO_NAO_E_AFN();
             return;
         }
+        if(!toWork.is_completo()){
+            toWork.completa();
+        }
         toWork.to_afd();
 
         if(MenuUtil.MOSTRA_MENU("Deseja salvar o automato tranformado?", Arrays.asList("Sim", "Não"), ler) == 1){
