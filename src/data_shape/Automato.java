@@ -467,7 +467,7 @@ public class Automato {
         this.estados_de_aceitacao = this.estados.stream().filter(item -> item.de_aceitacao).collect(Collectors.toList());
         this.transicoes = novasTransicoes;
         //completa o automato
-        this.completa();
+        if(!this.is_completo()) this.completa();
     }
 
     private void trata_varios_estados_iniciais(){
